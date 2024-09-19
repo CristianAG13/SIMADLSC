@@ -5,12 +5,12 @@ import { useState, useEffect } from "react";
 
 export const AppRouter = () => {
   // Estado para el rol del usuario
-  const [rol, setRol] = useState(localStorage.getItem('rol'));
+  const [role, setRole] = useState(localStorage.getItem('role'));
 
   useEffect(() => {
     // Actualiza el rol cuando se elimine del localStorage (logout)
     const handleStorageChange = () => {
-      setRol(localStorage.getItem('rol')); // Actualizar el estado del rol
+      setRole(localStorage.getItem('role')); // Actualizar el estado del rol
     };
 
     // Escucha los cambios en el localStorage
@@ -24,7 +24,7 @@ export const AppRouter = () => {
   return (
     <Routes>
       {/* Si el rol es 'admin', redirigir a la página de administrador */}
-      {rol === 'admin' ? (
+      {role === 'admin' ? (
         <Route path="/*" element={<AdminPage />} />
       ) : (
         <Route path="/paginainformativa/*" element={<SimadRoutes />} />

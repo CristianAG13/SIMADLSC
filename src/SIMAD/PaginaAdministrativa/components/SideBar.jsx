@@ -25,7 +25,7 @@ export const SideBar = () => {
     const handleLogout = () => {
         // Elimina el token y el rol de localStorage
         localStorage.removeItem('token');
-        localStorage.removeItem('rol');
+        localStorage.removeItem('role');
 
         // Actualiza el estado de autenticación
         setIsAuthenticated(false);

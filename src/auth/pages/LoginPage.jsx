@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email_Usuario, setEmail_Usuario] = useState('');
+  const [contraseña_Usuario, setContraseña_Usuario] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -13,42 +13,59 @@ export default function LoginPage() {
     setError('');
     setSuccess('');
 
-    if (!email || !password) {
+    if (!email_Usuario || !contraseña_Usuario) {
       setError('Por favor, completa todos los campos.');
       return;
     }
 
     try {
+      // Limpiar el token y el role antes de hacer una nueva solicitud
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+
       // Realizar la petición al servidor para el login
       const response = await fetch('http://localhost:3000/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email_Usuario, contraseña_Usuario }),  // Enviar los nuevos campos
       });
 
-      // Si la respuesta no es exitosa, mostrar el error
+      // Verificar si la respuesta no es 200 (OK)
       if (!response.ok) {
-        
         const errorData = await response.json();
-        setError(errorData.message || 'Error en el inicio de sesión');
+        setError(errorData.message || 'Error en el inicio de sesión. Credenciales incorrectas.');
         return;
       }
 
-      // Si la respuesta es exitosa, recibir los datos (token y rol)
+      // Si la respuesta es exitosa, recibir los datos (token y role)
       const data = await response.json();
-      console.log('Respuesta del backend:', data); // Verificar toda la respuesta
+      console.log('Respuesta completa del backend:', data);  // Verificar la estructura de la respuesta
 
-      // Guardar el token y el rol en localStorage
-      localStorage.setItem('token', data.token);  // Aquí guardas el token
-      localStorage.setItem('rol', data.rol);    // Aquí guardas el rol del usuario (admin, user, etc.)
-      console.log(data.rol)
+      // Acceder a 'role' directamente desde 'data'
+      const role = data.role;
+
+      // Verificar si existe un rol
+      if (!role) {
+        setError('El rol de usuario no está definido.');
+        return;
+      }
+
+      // Guardar el token y el role en localStorage
+      try {
+        localStorage.setItem('token', data.access_token);  // Guardar el token
+        localStorage.setItem('role', role);  // Guardar el rol
+        console.log('Rol guardado en localStorage:', localStorage.getItem('role'));
+      } catch (error) {
+        console.error('Error al guardar en localStorage:', error);
+      }
+
       // Mostrar mensaje de éxito
       setSuccess('Inicio de sesión exitoso');
 
-      // Redirigir al usuario a la página principal
-      window.location.href = '/';  // Redirigir a la página principal o una específica según el rol
+      // Redirigir al usuario a la página principal o una específica según el rol
+      window.location.href = '/';  
     } catch (error) {
       console.error(error);
       setError('Error de conexión con el servidor.');
@@ -75,10 +92,10 @@ export default function LoginPage() {
               <div className="mt-1">
                 <input
                   id="email"
-                  name="email"
+                  name="email_Usuario"
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={email_Usuario}
+                  onChange={(e) => setEmail_Usuario(e.target.value)}
                   className="block w-full rounded-lg border border-gray-300 p-3 shadow-md focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition ease-in-out duration-150"
                   placeholder="Ingresa tu correo electrónico"
                   required
@@ -93,10 +110,10 @@ export default function LoginPage() {
               <div className="mt-1">
                 <input
                   id="password"
-                  name="password"
+                  name="contraseña_Usuario"
                   type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={contraseña_Usuario}
+                  onChange={(e) => setContraseña_Usuario(e.target.value)}
                   className="block w-full rounded-lg border border-gray-300 p-3 shadow-md focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition ease-in-out duration-150"
                   placeholder="Ingresa tu contraseña"
                   required
