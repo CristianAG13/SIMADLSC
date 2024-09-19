@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { InfoAdminPage } from '../pages/InfoAdminPage';
-import { AsistenciaEst } from '../pages/Asistencias/AsistenciaEst';
-import { GestionAsistencia } from '../pages/Asistencias/GestionAsistencia';
+import  AsistenciaEst  from '../pages/Asistencias/AsistenciaEst';
+import  GestionAsistencia  from '../pages/Asistencias/GestionAsistencia';
 import { JustificacionAusencias } from '../pages/Asistencias/JustificacionAusencias';
 import { ReporteAsistencia } from '../pages/Asistencias/ReporteAsistencia';
 import { Eventos } from '../../components/Eventos';

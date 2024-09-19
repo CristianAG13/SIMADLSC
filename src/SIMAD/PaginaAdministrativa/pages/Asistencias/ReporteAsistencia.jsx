@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export const ReporteAsistencia = () => {
   const [studentId, setStudentId] = useState(''); // Guardar el ID del estudiante
