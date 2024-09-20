@@ -1,4 +1,5 @@
 export const InfoEducation = () => {
+
   return (
     <div>
       <section className="py-16 bg-blue-800 text-white" data-aos="fade-up">

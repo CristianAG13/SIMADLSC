@@ -1,6 +1,6 @@
 // services/gradosSeccionesService.js
 export const fetchGradosSecciones = async () => {
-    const response = await fetch('/api/asistencia/grados-secciones', {
+    const response = await fetch('http://localhost:3000/asistencia/grados-secciones', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
