@@ -2,13 +2,13 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import { SimadRoutes } from "../SIMAD/PaginaInformativa/routes/SimadRoutes";
 import { AdminPage } from "../SIMAD/PaginaAdministrativa/AdminPage";
 import { useState, useEffect } from "react";
-import { AuthRoutes } from "../auth/routes/AuthRoutes";
+
 export const AppRouter = () => {
   // Estado para el rol del usuario
   const [role, setRole] = useState(localStorage.getItem('role'));
 
   useEffect(() => {
-    // Actualiza el rol cuando se elimine o cambie en localStorage (logout)
+    // Actualiza el rol cuando se elimine del localStorage (logout)
     const handleStorageChange = () => {
       setRole(localStorage.getItem('role')); // Actualizar el estado del rol
     };
@@ -22,36 +22,16 @@ export const AppRouter = () => {
   }, []);
 
   return (
-    
     <Routes>
-     
-
       {/* Si el rol es 'admin', redirigir a la página de administrador */}
-
-      {role === 'admin' && (
+      {role === 'Super-Admin' ? (
         <Route path="/*" element={<AdminPage />} />
+      ) : (
+        <Route path="/paginainformativa/*" element={<SimadRoutes />} />
       )}
 
-      {/* Si el rol es 'professor', redirigir a la página de profesor */}
-      {role === 'profesor' && (
-        <Route path="/*" element={<AdminPage />} />
-      )}
-
-      {/* Si el rol es 'student', redirigir a la página de estudiante */}
-      {role === 'estudiante' && (
-        <Route path="/*" element={<AdminPage />} />
-      )}
-
-      {/* Si el rol es 'adminStaff', redirigir a la página de personal administrativo */}
-      {role === 'superadmin' && (
-        <Route path="/*" element={<AdminPage />} />
-      )}
-
-      {/* Si el rol no está definido o no coincide, redirigir a la página informativa */}
-      <Route path="/paginainformativa/*" element={<SimadRoutes />} />
+      {/* Si el rol no está definido, redirigir a la página informativa */}
       <Route path="*" element={<Navigate to="/paginainformativa" />} />
-        {/* Rutas de autenticación */}
-        <Route path="/auth/*" element={<AuthRoutes />} />
     </Routes>
   );
 };

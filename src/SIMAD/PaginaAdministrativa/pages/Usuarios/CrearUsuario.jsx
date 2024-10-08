@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createUser } from './services/useUserService';
 
-const CrearUsuario  = () => {
+const CrearUsuario = () => {
   const [newUser, setNewUser] = useState({
     nombre_Usuario: '',
     apellido1_Usuario: '',

@@ -4,7 +4,7 @@ export const fetchGestionAsistencia = async (page, filters) => {
       page: page.toString(),
     }).toString();
   
-    const response = await fetch(`/api/asistencia/filter?${queryParams}`, {
+    const response = await fetch(`http://localhost:3000/asistencia${queryParams}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

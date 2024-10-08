@@ -15,7 +15,7 @@ export const useUserEdit = () => {
     try {
       await updateUser(id, userData, token); // Llamada a la función de actualizar en el servicio
       setSuccess(true);
-    } catch (err) {
+    } catch (ERROR) {
       setError('Error al actualizar el usuario');
     } finally {
       setLoading(false);

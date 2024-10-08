@@ -1,89 +1,79 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 export default function LoginPage() {
-  const [email_Usuario, setEmail_Usuario] = useState("");
-  const [contraseña_Usuario, setContraseña_Usuario] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [email_Usuario, setEmail_Usuario] = useState('');
+  const [contraseña_Usuario, setContraseña_Usuario] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Limpiar mensajes anteriores
-    setError("");
-    setSuccess("");
+    setError('');
+    setSuccess('');
 
     if (!email_Usuario || !contraseña_Usuario) {
-      setError("Por favor, completa todos los campos.");
+      setError('Por favor, completa todos los campos.');
       return;
     }
 
     try {
       // Limpiar el token y el role antes de hacer una nueva solicitud
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
 
       // Realizar la petición al servidor para el login
-      const response = await fetch("http://localhost:3000/auth/login", {
-        method: "POST",
+      const response = await fetch('http://localhost:3000/auth/login', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email_Usuario, contraseña_Usuario }), // Enviar los nuevos campos
+        body: JSON.stringify({ email_Usuario, contraseña_Usuario }),  // Enviar los nuevos campos
       });
 
       // Verificar si la respuesta no es 200 (OK)
       if (!response.ok) {
         const errorData = await response.json();
-        setError(
-          errorData.message ||
-            "Error en el inicio de sesión. Credenciales incorrectas."
-        );
+        setError(errorData.message || 'Error en el inicio de sesión. Credenciales incorrectas.');
         return;
       }
 
       // Si la respuesta es exitosa, recibir los datos (token y role)
       const data = await response.json();
-      console.log("Respuesta completa del backend:", data); // Verificar la estructura de la respuesta
+      console.log('Respuesta completa del backend:', data);  // Verificar la estructura de la respuesta
 
       // Acceder a 'role' directamente desde 'data'
       const role = data.role;
 
       // Verificar si existe un rol
       if (!role) {
-        setError("El rol de usuario no está definido.");
+        setError('El rol de usuario no está definido.');
         return;
       }
 
       // Guardar el token y el role en localStorage
       try {
-        localStorage.setItem("token", data.access_token); // Guardar el token
-        localStorage.setItem("role", role); // Guardar el rol
-        console.log(
-          "Rol guardado en localStorage:",
-          localStorage.getItem("role")
-        );
+        localStorage.setItem('token', data.access_token);  // Guardar el token
+        localStorage.setItem('role', role);  // Guardar el rol
+        console.log('Rol guardado en localStorage:', localStorage.getItem('role'));
       } catch (error) {
-        console.error("Error al guardar en localStorage:", error);
+        console.error('Error al guardar en localStorage:', error);
       }
 
       // Mostrar mensaje de éxito
-      setSuccess("Inicio de sesión exitoso");
+      setSuccess('Inicio de sesión exitoso');
 
       // Redirigir al usuario a la página principal o una específica según el rol
-      window.location.href = "/";
+      window.location.href = '/';  
     } catch (error) {
       console.error(error);
-      setError("Error de conexión con el servidor.");
+      setError('Error de conexión con el servidor.');
     }
   };
 
   const handleGoBack = () => {
-    window.location.href = "/paginainformativa";
-  };
-
-  const ForgotPassword = () => {
-    window.location.href = "/auth/forgot-password";
+    window.location.href = '/paginainformativa'; 
   };
 
   return (
@@ -96,10 +86,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-800"
-              >
+              <label htmlFor="email" className="block text-sm font-medium text-gray-800">
                 Correo Electrónico
               </label>
               <div className="mt-1">
@@ -117,10 +104,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-800"
-              >
+              <label htmlFor="password" className="block text-sm font-medium text-gray-800">
                 Contraseña
               </label>
               <div className="mt-1">
@@ -177,12 +161,12 @@ export default function LoginPage() {
             </button>
 
             {/* Enlace "¿Olvidaste tu contraseña?" más azul y a la derecha */}
-            <button 
-            onClick={ForgotPassword}
+            <a
+              href="/paginainformativa/login/forgot-password"
               className="text-blue-600 font-medium hover:underline hover:text-blue-800"
             >
               ¿Olvidaste tu contraseña?
-            </button>
+            </a>
           </div>
         </div>
       </div>
