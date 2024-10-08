@@ -81,7 +81,7 @@ export const ReporteAsistencia = () => {
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Encabezado */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Gestión de Reportes de Asistencia</h1>
+        <h1 className="text-2xl font-bold text-gray-800">Gestión de reportes de asistencia</h1>
         <p className="text-gray-600">Consulta y gestiona los reportes de asistencia por ID de estudiante, grado, sección y fecha.</p>
       </div>
 
@@ -89,7 +89,7 @@ export const ReporteAsistencia = () => {
       <div className="bg-white p-4 rounded-lg shadow mb-6">
         <form className="grid grid-cols-1 md:grid-cols-3 gap-4" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="studentId" className="block text-sm font-medium text-gray-700">ID Estudiante</label>
+            <label htmlFor="studentId" className="block text-sm font-medium text-gray-700">ID estudiante</label>
             <input
               type="number"
               id="studentId"

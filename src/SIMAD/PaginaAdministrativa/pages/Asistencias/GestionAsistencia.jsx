@@ -38,71 +38,71 @@ const GestionAsistencia = () => {
     cargarGradosSecciones();
   }, []); 
 
-  const handleJustifyAttendance = (record) => {
-    MySwal.fire({
-      title: `Justificar Ausencia de ${record.nombre_estudiante}`,
-      input: 'textarea',
-      inputLabel: 'Motivo de la justificación',
-      inputPlaceholder: 'Escriba el motivo aquí...',
-      inputAttributes: {
-        'aria-label': 'Motivo de la justificación',
-        rows: 5,
-      },
-      showCancelButton: true,
-      confirmButtonText: 'Aceptar',
-      cancelButtonText: 'Cancelar',
-      customClass: {
-        confirmButton: 'bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg',
-        cancelButton: 'bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg',
-        input: 'p-3 border rounded-lg',
-      },
-      preConfirm: (justification) => {
-        if (!justification) {
-          MySwal.showValidationMessage('Debe ingresar un motivo de justificación');
-        } else {
-          return justification;
-        }
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const justification = result.value;
-        const justificationData = {
-          justificado: true,
-          motivo_justificacion: justification,
-        };
+  // const handleJustifyAttendance = (record) => {
+  //   MySwal.fire({
+  //     title: `Justificar Ausencia de ${record.nombre_estudiante}`,
+  //     input: 'textarea',
+  //     inputLabel: 'Motivo de la justificación',
+  //     inputPlaceholder: 'Escriba el motivo aquí...',
+  //     inputAttributes: {
+  //       'aria-label': 'Motivo de la justificación',
+  //       rows: 5,
+  //     },
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Aceptar',
+  //     cancelButtonText: 'Cancelar',
+  //     customClass: {
+  //       confirmButton: 'bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg',
+  //       cancelButton: 'bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg',
+  //       input: 'p-3 border rounded-lg',
+  //     },
+  //     preConfirm: (justification) => {
+  //       if (!justification) {
+  //         MySwal.showValidationMessage('Debe ingresar un motivo de justificación');
+  //       } else {
+  //         return justification;
+  //       }
+  //     },
+  //   }).then((result) => {
+  //     if (result.isConfirmed) {
+  //       const justification = result.value;
+  //       const justificationData = {
+  //         justificado: true,
+  //         motivo_justificacion: justification,
+  //       };
 
-        justificarAsistencia(record.id_asistencia, justificationData)
-          .then(() => {
-            const updatedAttendance = attendance.map((r) =>
-              r.id_asistencia === record.id_asistencia
-                ? { ...r, justificado: true, motivo_justificacion: justification }
-                : r
-            );
-            setAttendance(updatedAttendance); 
-            Swal.fire({
-              icon: 'success',
-              title: 'Justificación guardada',
-              text: `La ausencia de ${record.nombre_estudiante} ha sido justificada.`,
-              confirmButtonText: 'Ok',
-              customClass: {
-                confirmButton: 'bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg',
-              },
-            });
-          })
-          .catch(() => {
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'Hubo un problema al guardar la justificación.',
-              confirmButtonText: 'Ok',
-              customClass: {
-                confirmButton: 'bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg',
-              },
-            });
-          });
-      }
-    });
-  };
+  //       justificarAsistencia(record.id_asistencia, justificationData)
+  //         .then(() => {
+  //           const updatedAttendance = attendance.map((r) =>
+  //             r.id_asistencia === record.id_asistencia
+  //               ? { ...r, justificado: true, motivo_justificacion: justification }
+  //               : r
+  //           );
+  //           setAttendance(updatedAttendance); 
+  //           Swal.fire({
+  //             icon: 'success',
+  //             title: 'Justificación guardada',
+  //             text: `La ausencia de ${record.nombre_estudiante} ha sido justificada.`,
+  //             confirmButtonText: 'Ok',
+  //             customClass: {
+  //               confirmButton: 'bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg',
+  //             },
+  //           });
+  //         })
+  //         .catch(() => {
+  //           Swal.fire({
+  //             icon: 'error',
+  //             title: 'Error',
+  //             text: 'Hubo un problema al guardar la justificación.',
+  //             confirmButtonText: 'Ok',
+  //             customClass: {
+  //               confirmButton: 'bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg',
+  //             },
+  //           });
+  //         });
+  //     }
+  //   });
+  // };
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -140,17 +140,17 @@ const GestionAsistencia = () => {
       selector: (row) => row.seccion,
       sortable: true,
     },
-    {
-      name: 'Acciones',
-      cell: (row) => (
-        <button
-          onClick={() => handleJustifyAttendance(row)}
-          className="bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600"
-        >
-          Justificar
-        </button>
-      ),
-    },
+    // {
+    //   name: 'Acciones',
+    //   cell: (row) => (
+    //     <button
+    //       onClick={() => handleJustifyAttendance(row)}
+    //       className="bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600"
+    //     >
+    //       Justificar
+    //     </button>
+    //   ),
+    // },
   ];
 
   return (
@@ -207,9 +207,9 @@ const GestionAsistencia = () => {
             className="border p-2 rounded"
           >
             <option value="">Grado</option>
-            {grados.map((grado) => (
+            {/* {grados.map((grado) => (
               <option key={grado} value={grado}>{grado}</option>
-            ))}
+            ))} */}
           </select>
           <select
             name="seccion"
@@ -218,9 +218,9 @@ const GestionAsistencia = () => {
             className="border p-2 rounded"
           >
             <option value="">Sección</option>
-            {secciones.map((seccion) => (
+            {/* {secciones.map((seccion) => (
               <option key={seccion} value={seccion}>{seccion}</option>
-            ))}
+            ))} */}
           </select>
 
           {/* Filtro por fecha */}

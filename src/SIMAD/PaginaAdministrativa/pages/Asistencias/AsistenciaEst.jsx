@@ -152,11 +152,11 @@ const AsistenciaEst = () => {
           onChange={(e) => setSelectedGrado(e.target.value)}
         >
           <option value="">Seleccionar Grado</option>
-          {grados.map((grado) => (
+          {/* {grados.map((grado) => (
             <option key={grado} value={grado}>
               {grado}
             </option>
-          ))}
+          ))} */}
         </select>
       </div>
 

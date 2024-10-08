@@ -5,7 +5,7 @@ import  GestionAsistencia  from '../pages/Asistencias/GestionAsistencia';
 import { JustificacionAusencias } from '../pages/Asistencias/JustificacionAusencias';
 import { ReporteAsistencia } from '../pages/Asistencias/ReporteAsistencia';
 import { Eventos } from '../../components/Eventos';
-import { GestionEventos } from '../pages/Eventos/GestionEventos';
+import GestionEventos from '../pages/Eventos/GestionEventos';
 import { GestionHorario } from '../pages/Horarios/GestionHorario';
 import { HorarioEstu } from '../pages/Horarios/HorarioEstu';
 import { HorarioProf } from '../pages/Horarios/HorarioProf';
