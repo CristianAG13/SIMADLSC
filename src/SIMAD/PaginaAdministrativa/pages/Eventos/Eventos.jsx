@@ -1,7 +1,10 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import UseFetchEventos from '../hooks/UseFetchEventos';
+import Swal from 'sweetalert2';
+import '@sweetalert2/theme-tailwind/tailwind.css'; // Opcional: si instalaste el tema
 
 const Eventos = () => {
   const { data: eventos, loading, error } = UseFetchEventos('all');
@@ -25,8 +28,18 @@ const Eventos = () => {
     }
   };
 
+  React.useEffect(() => {
+    if (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error,
+        confirmButtonColor: '#2563EB', // Tailwind azul-600
+      });
+    }
+  }, [error]);
+
   if (loading) return <div className="p-6">Cargando eventos...</div>;
-  if (error) return <div className="p-6 text-red-500">{error}</div>;
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
