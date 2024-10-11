@@ -72,6 +72,7 @@ export const SideBar = () => {
                         {openSections.asistencia && (
                             <div className="ml-6">
                                 <Link to="/asistencia-estudiantes" className="block py-1 hover:text-gray-400">Asistencia Estudiantes</Link>
+                                <Link to="/asistencia-profesores" className="block py-1 hover:text-gray-400">Asistencia Profesores</Link>
                                 <Link to="/gestion-asistencia" className="block py-1 hover:text-gray-400">Gestión Asistencia</Link>
                                 <Link to="/justificacion-ausencias" className="block py-1 hover:text-gray-400">Justificación Ausencias</Link>
                                 <Link to="/reporte-asistencia" className="block py-1 hover:text-gray-400">Reporte Asistencia</Link>

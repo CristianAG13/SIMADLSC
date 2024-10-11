@@ -1,45 +1,19 @@
-
-const API_URL = 'http://localhost:3000/asistencias';
-
-export const crearAsistencias = async (asistenciasData) => {
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(asistenciasData),
-  });
-
-  if (!response.ok) throw new Error('Error al crear asistencias');
-  return await response.json();
-};
-
-export const obtenerAsistencias = async () => {
-  const response = await fetch(API_URL);
-  if (!response.ok) throw new Error('Error al obtener asistencias');
-  return await response.json();
-};
-
-export const justificarAusencia = async (asistenciaId, justificacion) => {
-  const response = await fetch(`${API_URL}/${asistenciaId}/justificar`, {
-      method: 'PATCH',
+export const fetchAsistenciasFiltradas = async (filtros) => {
+    const queryParams = new URLSearchParams(filtros).toString();
+  
+    const response = await fetch(`/api/asistencia/filter?${queryParams}`, {
+      method: 'GET',
       headers: {
-          'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ justificacion }),
-  });
-  if (!response.ok) {
-      throw new Error('Error al justificar la ausencia');
-  }
-  return response.json();
-};
-
-export const eliminarAsistencia = async (asistenciaId) => {
-  const response = await fetch(`${API_URL}/${asistenciaId}`, {
-      method: 'DELETE',
-  });
-  if (!response.ok) {
-      throw new Error('Error al eliminar la asistencia');
-  }
-  return response.json();
-};
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+  
+    if (!response.ok) {
+      throw new Error('Error al obtener los datos de asistencia');
+    }
+  
+    return await response.json();
+  };
+  
+  export default fetchAsistenciasFiltradas;

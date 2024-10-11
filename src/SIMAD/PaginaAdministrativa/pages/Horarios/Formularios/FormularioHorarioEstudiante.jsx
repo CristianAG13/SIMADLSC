@@ -36,10 +36,8 @@ const FormularioHorarioEstudiante = ({
     },
   });
 
-
   const gradoSeleccionado = watch('gradoId');
   const [seccionesDisponibles, setSeccionesDisponibles] = useState([]);
-
 
   useEffect(() => {
     const fetchSecciones = async () => {
