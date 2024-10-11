@@ -52,6 +52,12 @@ const Eventos = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Lista de Eventos Aprobados</h1>
         <Link
+          to="/user-eventos"
+          className="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-600 transition"
+        >
+          Mis solicitudes de eventos
+        </Link>
+        <Link
           to="/crear-eventos"
           className="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-green-600 transition"
         >

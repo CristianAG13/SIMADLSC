@@ -15,6 +15,7 @@ export const useUserEdit = () => {
     try {
       await updateUser(id, userData, token); // Llamada a la función de actualizar en el servicio
       setSuccess(true);
+    // eslint-disable-next-line no-unused-vars
     } catch (ERROR) {
       setError('Error al actualizar el usuario');
     } finally {

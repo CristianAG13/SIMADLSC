@@ -26,7 +26,7 @@ const EventosService = {
   // Obtener eventos del usuario
   getUserEventos: async () => {
     try {
-      const response = await axiosInstance.get('/user-eventos');
+      const response = await axiosInstance.get('/eventos');
       return response.data;
     } catch (error) {
       console.error('Error al obtener eventos del usuario:', error);
@@ -35,14 +35,8 @@ const EventosService = {
   },
 
   // Obtener un evento por ID
-  getEventoById: async (id) => {
-    try {
-      const response = await axiosInstance.get(`/eventos/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error(`Error al obtener el evento con ID ${id}:`, error);
-      throw error;
-    }
+  getEventoById: (id) => {
+    return axios.get(`${'http://localhost:3000'}/eventos/${id}`);
   },
 
   // Crear un nuevo evento
@@ -57,36 +51,22 @@ const EventosService = {
   },
 
   // Actualizar un evento existente
-  updateEvento: async (id, eventoData) => {
-    try {
-      const response = await axiosInstance.put(`/eventos/${id}`, eventoData);
-      return response.data;
-    } catch (error) {
-      console.error(`Error al actualizar el evento con ID ${id}:`, error);
-      throw error;
-    }
+  updateEvento: (id, evento) => {
+    return axios.put(`${'http://localhost:3000'}/eventos/${id}`, evento);
   },
 
   // Aprobar un evento
-  approveEvento: async (id) => {
-    try {
-      const response = await axiosInstance.patch(`/eventos/${id}/approve`);
-      return response.data;
-    } catch (error) {
-      console.error(`Error al aprobar el evento con ID ${id}:`, error);
-      throw error;
-    }
+  approveEvento: (id) => {
+    return axios.post(`${'http://localhost:3000'}/eventos/${id}/approve`);
+  },
+
+  deleteEvento: (id) => {
+    return axios.delete(`${'http://localhost:3000'}/eventos/${id}`);
   },
 
   // Rechazar un evento
-  rejectEvento: async (id) => {
-    try {
-      const response = await axiosInstance.patch(`/eventos/${id}/reject`);
-      return response.data;
-    } catch (error) {
-      console.error(`Error al rechazar el evento con ID ${id}:`, error);
-      throw error;
-    }
+  rejectEvento: (id) => {
+    return axios.post(`${'http://localhost:3000'}/eventos/${id}/reject`);
   },
 
   // Obtener todas las ubicaciones

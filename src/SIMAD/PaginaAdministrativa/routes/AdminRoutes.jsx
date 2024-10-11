@@ -18,7 +18,7 @@ import { MiPerfil } from '../pages/Perfil/MiPerfil';
 import CrearUsuario from '../pages/Usuarios/CrearUsuario';
 import CrearEventos from '../pages/Eventos/CrearEventos';
 import UserEventos from '../pages/Eventos/UserEventos';
-
+import EventosEdit from '../pages/Eventos/EventosEdit';
 
 
 export const AdminRoutes = () => {
@@ -39,6 +39,9 @@ export const AdminRoutes = () => {
                         <Route path="/crear-eventos" element={<CrearEventos />} />
                         <Route path="/gestion-eventos" element={<GestionEventos />} />
                         <Route path="/user-eventos" element={<UserEventos />} />
+                        <Route path="/eventos-edit/:id" element={<EventosEdit />} />
+
+
                         
 
                         
