@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import UseFetchEventos from '../hooks/UseFetchEventos';
-import EventosService from '../services/EventosService';
+import UseFetchEventos from './Hook/UseFetchEventos';
+import EventosService from './Service/EventosService';
 import Swal from 'sweetalert2';
-import '@sweetalert2/theme-tailwind/tailwind.css'; // Opcional: si instalaste el tema
+import '@sweetalert2/theme-bulma/bulma.css';
 
 const UserEventos = () => {
-  const { data: eventos, loading, error } = UseFetchEventos('user');
+  const { data: eventos, setData, loading, error } = UseFetchEventos('user');
 
   const handleDelete = (id) => {
     Swal.fire({
@@ -34,7 +34,7 @@ const UserEventos = () => {
         confirmButtonColor: '#2563EB',
       }).then(() => {
         // Actualiza la lista de eventos sin recargar la página
-        window.location.reload();
+        setData(prevEventos => prevEventos.filter(evento => evento.id !== id));
       });
     } catch (err) {
       Swal.fire({
@@ -77,19 +77,19 @@ const UserEventos = () => {
             </thead>
             <tbody>
               {eventos.map((evento) => (
-                <tr key={evento.id_Evento} className="hover:bg-gray-100 transition">
+                <tr key={evento.id} className="hover:bg-gray-100 transition">
                   <td className="border-t border-gray-200 px-6 py-4">{evento.nombre_Evento}</td>
                   <td className="border-t border-gray-200 px-6 py-4">{evento.fecha_Evento}</td>
                   <td className="border-t border-gray-200 px-6 py-4">{evento.estado_Evento.nombre_estado_evento}</td>
                   <td className="border-t border-gray-200 px-6 py-4 flex space-x-4">
-                    <Link to={`/user-eventos/${evento.id_Evento}`} className="text-blue-600 hover:underline">
+                    <Link to={`/user-eventos/${evento.id}`} className="text-blue-600 hover:underline">
                       Ver Info
                     </Link>
-                    <Link to={`/user-eventos/edit/${evento.id_Evento}`} className="text-yellow-500 hover:underline">
+                    <Link to={`/user-eventos/edit/${evento.id}`} className="text-yellow-500 hover:underline">
                       Editar
                     </Link>
                     <button
-                      onClick={() => handleDelete(evento.id_Evento)}
+                      onClick={() => handleDelete(evento.id)}
                       className="text-red-500 hover:underline"
                     >
                       Eliminar

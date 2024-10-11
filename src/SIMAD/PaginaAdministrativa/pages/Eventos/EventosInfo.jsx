@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import EventosService from '../services/EventosService';
 import Swal from 'sweetalert2';
-import '@sweetalert2/theme-tailwind/tailwind.css'; 
-
+import '@sweetalert2/theme-bulma/bulma.css';
 const EventoInfo = () => {
   const { id } = useParams();
   const [evento, setEvento] = useState(null);
@@ -45,12 +44,12 @@ const EventoInfo = () => {
         <h2 className="text-2xl font-bold mb-4 text-gray-800">{evento.nombre_Evento}</h2>
         <p className="mb-2"><strong>Descripción:</strong> {evento.descripcion_Evento}</p>
         <p className="mb-2"><strong>Fecha:</strong> {evento.fecha_Evento}</p>
-        <p className="mb-2"><strong>Hora de Inicio:</strong> {evento.hora_inicio_Evento}</p>
-        <p className="mb-2"><strong>Hora de Fin:</strong> {evento.hora_fin_Evento}</p>
+        <p className="mb-2"><strong>Hora de inicio:</strong> {evento.hora_inicio_Evento}</p>
+        <p className="mb-2"><strong>Hora de fin:</strong> {evento.hora_fin_Evento}</p>
         <p className="mb-2"><strong>Dirigido a:</strong> {evento.dirigido_a_Evento.nombre_dirigido_a}</p>
         <p className="mb-4"><strong>Estado:</strong> {evento.estado_Evento.nombre_estado_evento}</p>
         <Link to="/gestion-eventos" className="text-blue-500 hover:underline">
-          Volver a Gestión de Eventos
+          Volver a gestión de eventos
         </Link>
       </div>
     </div>

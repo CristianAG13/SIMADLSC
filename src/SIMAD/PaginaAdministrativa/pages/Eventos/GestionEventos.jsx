@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import UseFetchEventos from '../hooks/UseFetchEventos';
-import EventosService from '../services/EventosService';
+// src/SIMAD/PaginaAdministrativa/pages/Eventos/GestionEventos.jsx
+
+import  { useState, useEffect } from 'react';
+import EventosService from './Service/EventosService';
+import UseFetchEventos from './Hook/UseFetchEventos';
 import Swal from 'sweetalert2';
-import '@sweetalert2/theme-tailwind/tailwind.css'; // Opcional: si instalaste el tema
+import '@sweetalert2/theme-bulma/bulma.css';
 
 const GestionEventos = () => {
-  const { data: eventos, loading, error } = UseFetchEventos();
+  const { data: eventos, setData, loading, error } = UseFetchEventos();
   const [filters, setFilters] = useState({
     estado: '',
     dirigido_a: '',
@@ -59,7 +60,14 @@ const GestionEventos = () => {
         text: 'El evento ha sido aprobado.',
         confirmButtonColor: '#2563EB',
       }).then(() => {
-        window.location.reload(); // Puedes optimizar esto actualizando el estado localmente
+        // Actualiza el estado local sin recargar la página
+        setData((prevEventos) =>
+          prevEventos.map((evento) =>
+            evento.id_Evento === id
+              ? { ...evento, estadoEvento: { nombre_estado_evento: 'Aprobado' } }
+              : evento
+          )
+        );
       });
     } catch (err) {
       Swal.fire({
@@ -80,7 +88,14 @@ const GestionEventos = () => {
         text: 'El evento ha sido rechazado.',
         confirmButtonColor: '#2563EB',
       }).then(() => {
-        window.location.reload(); // Puedes optimizar esto actualizando el estado localmente
+        // Actualiza el estado local sin recargar la página
+        setData((prevEventos) =>
+          prevEventos.map((evento) =>
+            evento.id_Evento === id
+              ? { ...evento, estadoEvento: { nombre_estado_evento: 'Rechazado' } }
+              : evento
+          )
+        );
       });
     } catch (err) {
       Swal.fire({
@@ -95,18 +110,18 @@ const GestionEventos = () => {
   // Filtrar eventos según los filtros seleccionados
   const filteredEventos = eventos.filter((evento) => {
     const matchesEstado = filters.estado
-      ? evento.estado_Evento.nombre_estado_evento === filters.estado
+      ? evento.estadoEvento?.nombre_estado_evento === filters.estado
       : true;
     const matchesDirigidoA = filters.dirigido_a
-      ? evento.dirigido_a_Evento.nombre_dirigido_a === filters.dirigido_a
+      ? evento.dirigidoA?.nombre_dirigido_a === filters.dirigido_a
       : true;
     const matchesFecha = filters.fecha
-      ? evento.fecha_Evento === filters.fecha
+      ? new Date(evento.fecha_Evento).toISOString().split('T')[0] === filters.fecha
       : true;
     return matchesEstado && matchesDirigidoA && matchesFecha;
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (error) {
       Swal.fire({
         icon: 'error',
@@ -156,11 +171,11 @@ const GestionEventos = () => {
 
       {/* Lista de Eventos */}
       {loading ? (
-        <div> Cargando eventos...</div>
+        <div className="text-center">Cargando eventos...</div>
       ) : error ? (
-        <div className="text-red-500"> {error} </div>
+        <div className="text-red-500 text-center">{error}</div>
       ) : filteredEventos.length === 0 ? (
-        <div>No hay eventos que coincidan con los filtros.</div>
+        <div className="text-center">No hay eventos que coincidan con los filtros.</div>
       ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white rounded-lg shadow-lg overflow-hidden">
@@ -177,27 +192,27 @@ const GestionEventos = () => {
               {filteredEventos.map((evento) => (
                 <tr key={evento.id_Evento} className="hover:bg-gray-100 transition">
                   <td className="border-t border-gray-200 px-6 py-4">{evento.nombre_Evento}</td>
-                  <td className="border-t border-gray-200 px-6 py-4">{evento.fecha_Evento}</td>
-                  <td className="border-t border-gray-200 px-6 py-4">{evento.dirigido_a_Evento.nombre_dirigido_a}</td>
-                  <td className="border-t border-gray-200 px-6 py-4">{evento.estado_Evento.nombre_estado_evento}</td>
+                  <td className="border-t border-gray-200 px-6 py-4">
+                    {new Date(evento.fecha_Evento).toLocaleDateString()}
+                  </td>
+                  <td className="border-t border-gray-200 px-6 py-4">
+                    {evento.dirigidoA?.nombre_dirigido_a || 'Sin Público'}
+                  </td>
+                  <td className="border-t border-gray-200 px-6 py-4">
+                    {evento.estadoEvento?.nombre_estado_evento || 'Sin Estado'}
+                  </td>
                   <td className="border-t border-gray-200 px-6 py-4 flex space-x-4">
-                    <Link
-                      to={`/gestion-eventos/${evento.id_Evento}`}
-                      className="text-blue-600 hover:underline"
-                    >
-                      Ver Info
-                    </Link>
-                    {evento.estado_Evento.nombre_estado_evento === 'Pendiente' && (
+                    {evento.estadoEvento?.nombre_estado_evento === 'Pendiente' && (
                       <>
                         <button
                           onClick={() => handleApprove(evento.id_Evento)}
-                          className="text-green-600 hover:underline"
+                          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition"
                         >
                           Aprobar
                         </button>
                         <button
                           onClick={() => handleReject(evento.id_Evento)}
-                          className="text-red-600 hover:underline"
+                          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
                         >
                           Rechazar
                         </button>

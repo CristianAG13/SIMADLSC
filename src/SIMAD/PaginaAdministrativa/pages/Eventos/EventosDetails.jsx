@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import EventosService from '../services/EventosService';
 import Swal from 'sweetalert2';
-import '@sweetalert2/theme-tailwind/tailwind.css'; // Opcional: si instalaste el tema
+import '@sweetalert2/theme-bulma/bulma.css';
 
 const EventoDetails = () => {
   const { id } = useParams();
@@ -52,7 +52,7 @@ const EventoDetails = () => {
         <p className="mb-2"><strong>Dirigido a:</strong> {evento.dirigido_a_Evento.nombre_dirigido_a}</p>
         <p className="mb-4"><strong>Estado:</strong> {evento.estado_Evento.nombre_estado_evento}</p>
         <Link to="/user-eventos" className="text-blue-500 hover:underline">
-          Volver a Mis Solicitudes
+          Volver a mis solicitudes
         </Link>
       </div>
     </div>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import EventosService from '../services/EventosService';
 import Swal from 'sweetalert2';
-import '@sweetalert2/theme-tailwind/tailwind.css'; // Opcional: si instalaste el tema
+import '@sweetalert2/theme-bulma/bulma.css';
 
 const EventoEdit = () => {
   const { id } = useParams();
