@@ -1,11 +1,8 @@
-// src/services/EventosService.js
 
 import axios from 'axios';
 
-// Configura la URL base de tu API
-const API_BASE_URL = 'http://localhost:3000/api'; // Cambia según tu configuración
+const API_BASE_URL = 'http://localhost:3000/'; 
 
-// Crear una instancia de Axios con configuraciones predeterminadas
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -14,48 +11,84 @@ const axiosInstance = axios.create({
   },
 });
 
-// Service para gestionar eventos
 const EventosService = {
   // Obtener todos los eventos
   getAllEventos: async () => {
-    const response = await axiosInstance.get('/eventos');
-    return response.data;
+    try {
+      const response = await axiosInstance.get('/eventos');
+      return response.data;
+    } catch (error) {
+      console.error('Error al obtener todos los eventos:', error);
+      throw error;
+    }
   },
 
   // Obtener eventos del usuario
   getUserEventos: async () => {
-    const response = await axiosInstance.get('/eventos/user');
-    return response.data;
+    try {
+      const response = await axiosInstance.get('/eventos');
+      return response.data;
+    } catch (error) {
+      console.error('Error al obtener eventos del usuario:', error);
+      throw error;
+    }
   },
 
   // Obtener un evento por ID
-  getEventoById: async (id) => {
-    const response = await axiosInstance.get(`/eventos/${id}`);
-    return response.data;
+  getEventoById: (id) => {
+    return axios.get(`${'http://localhost:3000'}/eventos/${id}`);
   },
 
   // Crear un nuevo evento
   createEvento: async (eventoData) => {
-    const response = await axiosInstance.post('/eventos', eventoData);
-    return response.data;
+    try {
+      const response = await axiosInstance.post('/eventos', eventoData);
+      return response.data;
+    } catch (error) {
+      console.error('Error al crear evento:', error);
+      throw error;
+    }
   },
 
   // Actualizar un evento existente
-  updateEvento: async (id, eventoData) => {
-    const response = await axiosInstance.put(`/eventos/${id}`, eventoData);
-    return response.data;
+  updateEvento: (id, evento) => {
+    return axios.put(`${'http://localhost:3000'}/eventos/${id}`, evento);
   },
 
   // Aprobar un evento
-  approveEvento: async (id) => {
-    const response = await axiosInstance.patch(`/eventos/${id}/approve`);
-    return response.data;
+  approveEvento: (id) => {
+    return axios.post(`${'http://localhost:3000'}/eventos/${id}/approve`);
+  },
+
+  deleteEvento: (id) => {
+    return axios.delete(`${'http://localhost:3000'}/eventos/${id}`);
   },
 
   // Rechazar un evento
-  rejectEvento: async (id) => {
-    const response = await axiosInstance.patch(`/eventos/${id}/reject`);
-    return response.data;
+  rejectEvento: (id) => {
+    return axios.post(`${'http://localhost:3000'}/eventos/${id}/reject`);
+  },
+
+  // Obtener todas las ubicaciones
+  getUbicaciones: async () => {
+    try {
+      const response = await axiosInstance.get('/ubicaciones');
+      return response.data; // Asumiendo que la respuesta es un array de ubicaciones
+    } catch (error) {
+      console.error('Error al obtener ubicaciones:', error);
+      throw error;
+    }
+  },
+
+  // Obtener todos los tipos de eventos
+  getTiposEventos: async () => {
+    try {
+      const response = await axiosInstance.get('/tipos-eventos');
+      return response.data; // Asumiendo que la respuesta es un array de tipos de eventos
+    } catch (error) {
+      console.error('Error al obtener tipos de eventos:', error);
+      throw error;
+    }
   },
 };
 

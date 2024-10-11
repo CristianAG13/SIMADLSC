@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import UseFetchEventos from '../hooks/UseFetchEventos';
-import EventosService from '../services/EventosService';
+import { useState, useEffect } from 'react';
+import EventosService from './Service/EventosService';
+import UseFetchEventos from './Hook/UseFetchEventos';
 import Swal from 'sweetalert2';
-import '@sweetalert2/theme-tailwind/tailwind.css'; // Opcional: si instalaste el tema
+import '@sweetalert2/theme-bulma/bulma.css';
 
 const GestionEventos = () => {
-  const { data: eventos, loading, error } = UseFetchEventos();
+  const { data: eventos, setData, loading, error } = UseFetchEventos();
   const [filters, setFilters] = useState({
     estado: '',
     dirigido_a: '',
@@ -24,8 +23,8 @@ const GestionEventos = () => {
       text: '¿Deseas aprobar este evento?',
       icon: 'question',
       showCancelButton: true,
-      confirmButtonColor: '#10B981', // Tailwind verde-500
-      cancelButtonColor: '#EF4444', // Tailwind rojo-500
+      confirmButtonColor: '#10B981',
+      cancelButtonColor: '#EF4444',
       confirmButtonText: 'Sí, aprobar',
     }).then((result) => {
       if (result.isConfirmed) {
@@ -40,8 +39,8 @@ const GestionEventos = () => {
       text: '¿Deseas rechazar este evento?',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#EF4444', // Tailwind rojo-500
-      cancelButtonColor: '#2563EB', // Tailwind azul-600
+      confirmButtonColor: '#EF4444',
+      cancelButtonColor: '#2563EB',
       confirmButtonText: 'Sí, rechazar',
     }).then((result) => {
       if (result.isConfirmed) {
@@ -59,7 +58,13 @@ const GestionEventos = () => {
         text: 'El evento ha sido aprobado.',
         confirmButtonColor: '#2563EB',
       }).then(() => {
-        window.location.reload(); // Puedes optimizar esto actualizando el estado localmente
+        setData((prevEventos) =>
+          prevEventos.map((evento) =>
+            evento.id_Evento === id
+              ? { ...evento, estadoEvento: { nombre: 'Aprobado' } }
+              : evento
+          )
+        );
       });
     } catch (err) {
       Swal.fire({
@@ -80,7 +85,13 @@ const GestionEventos = () => {
         text: 'El evento ha sido rechazado.',
         confirmButtonColor: '#2563EB',
       }).then(() => {
-        window.location.reload(); // Puedes optimizar esto actualizando el estado localmente
+        setData((prevEventos) =>
+          prevEventos.map((evento) =>
+            evento.id_Evento === id
+              ? { ...evento, estadoEvento: { nombre: 'Rechazado' } }
+              : evento
+          )
+        );
       });
     } catch (err) {
       Swal.fire({
@@ -92,21 +103,38 @@ const GestionEventos = () => {
     }
   };
 
-  // Filtrar eventos según los filtros seleccionados
+  const handleViewInfo = (evento) => {
+    Swal.fire({
+      title: evento.nombre_Evento,
+      html: `
+        <p><strong>Descripción:</strong> ${evento.descripcion_Evento || 'N/A'}</p>
+        <p><strong>Fecha:</strong> ${new Date(evento.fecha_Evento).toLocaleDateString()}</p>
+        <p><strong>Hora de Inicio:</strong> ${evento.hora_inicio_Evento}</p>
+        <p><strong>Hora de Fin:</strong> ${evento.hora_fin_Evento}</p>
+        <p><strong>Dirigido A:</strong> ${evento.dirigidoA?.nombre || 'Sin Público'}</p>
+        <p><strong>Estado:</strong> ${evento.estadoEvento?.nombre || 'Sin Estado'}</p>
+        <p><strong>Tipo de Evento:</strong> ${evento.tipoEvento?.nombre || 'Sin Tipo'}</p>
+        <p><strong>Ubicación:</strong> ${evento.ubicacion?.nombre || 'Sin Ubicación'}</p>
+      `,
+      icon: 'info',
+      confirmButtonColor: '#2563EB',
+    });
+  };
+
   const filteredEventos = eventos.filter((evento) => {
     const matchesEstado = filters.estado
-      ? evento.estado_Evento.nombre_estado_evento === filters.estado
+      ? evento.estadoEvento?.nombre.trim().toLowerCase() === filters.estado.trim().toLowerCase()
       : true;
     const matchesDirigidoA = filters.dirigido_a
-      ? evento.dirigido_a_Evento.nombre_dirigido_a === filters.dirigido_a
+      ? evento.dirigidoA?.nombre.trim().toLowerCase() === filters.dirigido_a.trim().toLowerCase()
       : true;
     const matchesFecha = filters.fecha
-      ? evento.fecha_Evento === filters.fecha
+      ? new Date(evento.fecha_Evento).toISOString().split('T')[0] === filters.fecha
       : true;
     return matchesEstado && matchesDirigidoA && matchesFecha;
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (error) {
       Swal.fire({
         icon: 'error',
@@ -121,7 +149,6 @@ const GestionEventos = () => {
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">Gestión de Eventos</h1>
 
-      {/* Filtros */}
       <div className="mb-6 flex flex-wrap gap-4">
         <select
           name="estado"
@@ -143,7 +170,6 @@ const GestionEventos = () => {
           <option value="">Todos los Públicos</option>
           <option value="Estudiantes">Estudiantes</option>
           <option value="Público en General">Público en General</option>
-          {/* Agrega más opciones según tus necesidades */}
         </select>
         <input
           type="date"
@@ -154,13 +180,12 @@ const GestionEventos = () => {
         />
       </div>
 
-      {/* Lista de Eventos */}
       {loading ? (
-        <div> Cargando eventos...</div>
+        <div className="text-center">Cargando eventos...</div>
       ) : error ? (
-        <div className="text-red-500"> {error} </div>
+        <div className="text-red-500 text-center">{error}</div>
       ) : filteredEventos.length === 0 ? (
-        <div>No hay eventos que coincidan con los filtros.</div>
+        <div className="text-center">No hay eventos que coincidan con los filtros.</div>
       ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white rounded-lg shadow-lg overflow-hidden">
@@ -177,27 +202,33 @@ const GestionEventos = () => {
               {filteredEventos.map((evento) => (
                 <tr key={evento.id_Evento} className="hover:bg-gray-100 transition">
                   <td className="border-t border-gray-200 px-6 py-4">{evento.nombre_Evento}</td>
-                  <td className="border-t border-gray-200 px-6 py-4">{evento.fecha_Evento}</td>
-                  <td className="border-t border-gray-200 px-6 py-4">{evento.dirigido_a_Evento.nombre_dirigido_a}</td>
-                  <td className="border-t border-gray-200 px-6 py-4">{evento.estado_Evento.nombre_estado_evento}</td>
-                  <td className="border-t border-gray-200 px-6 py-4 flex space-x-4">
-                    <Link
-                      to={`/gestion-eventos/${evento.id_Evento}`}
-                      className="text-blue-600 hover:underline"
+                  <td className="border-t border-gray-200 px-6 py-4">
+                    {new Date(evento.fecha_Evento).toLocaleDateString()}
+                  </td>
+                  <td className="border-t border-gray-200 px-6 py-4">
+                    {evento.dirigidoA?.nombre || 'Sin Público'}
+                  </td>
+                  <td className="border-t border-gray-200 px-6 py-4">
+                    {evento.estadoEvento?.nombre || 'Sin Estado'}
+                  </td>
+                  <td className="border-t border-gray-200 px-6 py-4 flex space-x-2">
+                    <button
+                      onClick={() => handleViewInfo(evento)}
+                      className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
                     >
-                      Ver Info
-                    </Link>
-                    {evento.estado_Evento.nombre_estado_evento === 'Pendiente' && (
+                      Ver Información
+                    </button>
+                    {evento.estadoEvento?.nombre.trim().toLowerCase() === 'pendiente' && (
                       <>
                         <button
                           onClick={() => handleApprove(evento.id_Evento)}
-                          className="text-green-600 hover:underline"
+                          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition"
                         >
                           Aprobar
                         </button>
                         <button
                           onClick={() => handleReject(evento.id_Evento)}
-                          className="text-red-600 hover:underline"
+                          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
                         >
                           Rechazar
                         </button>

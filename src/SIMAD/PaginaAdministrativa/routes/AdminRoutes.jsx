@@ -4,7 +4,7 @@ import  AsistenciaEst  from '../pages/Asistencias/AsistenciaEst';
 import  GestionAsistencia  from '../pages/Asistencias/GestionAsistencia';
 import { JustificacionAusencias } from '../pages/Asistencias/JustificacionAusencias';
 import { ReporteAsistencia } from '../pages/Asistencias/ReporteAsistencia';
-import { Eventos } from '../../components/Eventos';
+import Eventos from '../pages/Eventos/Eventos';
 import GestionEventos from '../pages/Eventos/GestionEventos';
 import { GestionHorario } from '../pages/Horarios/GestionHorario';
 import { HorarioEstu } from '../pages/Horarios/HorarioEstu';
@@ -16,7 +16,9 @@ import { MatriculaExtraordinaria } from '../pages/Matricula/MatriculaExtraordina
 import GestionUsuarios from '../pages/Usuarios/GestionUsuarios';
 import { MiPerfil } from '../pages/Perfil/MiPerfil';
 import CrearUsuario from '../pages/Usuarios/CrearUsuario';
-
+import CrearEventos from '../pages/Eventos/CrearEventos';
+import UserEventos from '../pages/Eventos/UserEventos';
+import EventosEdit from '../pages/Eventos/EventosEdit';
 
 
 export const AdminRoutes = () => {
@@ -34,7 +36,14 @@ export const AdminRoutes = () => {
                         
                         {/* Eventos Routes */}
                         <Route path="/eventos" element={<Eventos />} />
+                        <Route path="/crear-eventos" element={<CrearEventos />} />
                         <Route path="/gestion-eventos" element={<GestionEventos />} />
+                        <Route path="/user-eventos" element={<UserEventos />} />
+                        <Route path="/eventos-edit/:id" element={<EventosEdit />} />
+
+
+                        
+
                         
                         {/* Horarios Routes */}
                         <Route path="/gestion-horario" element={<GestionHorario />} />
