@@ -4,6 +4,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import UseFetchEventos from './Hook/UseFetchEventos';
 import Swal from 'sweetalert2';
+import {  FaPlus } from 'react-icons/fa';
+
 import '@sweetalert2/theme-bulma/bulma.css';
 
 const Eventos = () => {
@@ -50,7 +52,7 @@ const Eventos = () => {
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Lista de Eventos Aprobados</h1>
+        <h1 className="text-3xl font-bold text-gray-800">Lista de eventos </h1>
         <Link
           to="/user-eventos"
           className="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-600 transition"
@@ -59,8 +61,10 @@ const Eventos = () => {
         </Link>
         <Link
           to="/crear-eventos"
-          className="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-green-600 transition"
+          className="flex items-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+          title="Crear Nuevo Evento"
         >
+          <FaPlus className="mr-2" />
           Crear Evento
         </Link>
       </div>
