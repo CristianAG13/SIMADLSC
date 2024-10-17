@@ -1,5 +1,6 @@
 const BASE_URL = 'http://localhost:3000/users';  // URL base para las peticiones
 
+// Obtener todos los usuarios
 export const getAllUsers = async (token) => {
   const response = await fetch(`${BASE_URL}`, {
     method: 'GET',
@@ -15,6 +16,7 @@ export const getAllUsers = async (token) => {
 
   return response.json();
 };
+
 
 export const createUser = async (userData, token) => {
   if (!token) {
@@ -32,11 +34,13 @@ export const createUser = async (userData, token) => {
 
   if (!response.ok) {
     throw new Error('Error al crear el usuario');
+    
   }
 
   return response.json();
 };
 
+// Actualizar un usuario existente
 export const updateUser = async (id, userData, token) => {
   const response = await fetch(`${BASE_URL}/${id}`, {
     method: 'PUT',
@@ -54,6 +58,7 @@ export const updateUser = async (id, userData, token) => {
   return response.json();
 };
 
+// Eliminar un usuario
 export const deleteUser = async (id, token) => {
   const response = await fetch(`${BASE_URL}/${id}`, {
     method: 'DELETE',
@@ -64,7 +69,6 @@ export const deleteUser = async (id, token) => {
     credentials: 'include',
   });
 
-  // Verificamos si la respuesta tiene contenido antes de intentar parsearla
   if (response.status === 204) {
     return; // No hay contenido
   }
@@ -73,12 +77,12 @@ export const deleteUser = async (id, token) => {
     throw new Error('Error al eliminar el usuario');
   }
 
-  return response.json(); // Solo si la respuesta tiene contenido JSON
+  return response.json();
 };
 
+// Bloquear o desbloquear un usuario
 export const toggleBlockUser = async (id, bloqueado_Usuario, token) => {
-  const updatedData = { bloqueado_Usuario };
-  const response = await fetch(`${BASE_URL}/${id}`, {
+  const response = await fetch(`http://localhost:3000/users/${id}/block`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
