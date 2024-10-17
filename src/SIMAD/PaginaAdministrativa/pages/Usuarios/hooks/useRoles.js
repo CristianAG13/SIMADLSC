@@ -1,4 +1,3 @@
-// hooks/useRoles.js
 import { useState, useEffect } from 'react';
 import { getAllRoles } from '../services/useRoleService';
 
@@ -12,18 +11,18 @@ export const useRoles = (token) => {
       try {
         const rolesData = await getAllRoles(token);
         setRoles(rolesData);  // Guardamos los roles obtenidos
-        setLoading(false);
-    } catch (err) {
+      } catch (err) {
         console.error('Error al obtener los roles:', err);
         setError('Error al obtener los roles');
+      } finally {
         setLoading(false);
-    }
-};
+      }
+    };
 
-if (token) {
-    fetchRoles();
-}
-}, [token]);
+    if (token) {
+      fetchRoles();
+    }
+  }, [token]);
 
   return { roles, loading, error };
 };

@@ -1,28 +1,30 @@
-// src/SIMAD/PaginaAdministrativa/pages/Horarios/Formularios/FormularioHorarioEstudiante.jsx
-
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import { HorarioEstudianteSchema } from './validationSchemas';
+import PropTypes from 'prop-types';
 
-const FormularioHorarioEstudiante = () => {
-  // Estados para almacenar datos dinámicos
-  const [grados, setGrados] = useState([]);
-  const [secciones, setSecciones] = useState([]);
-  const [materias, setMaterias] = useState([]);
-  const [profesores, setProfesores] = useState([]);
-  const [aulas, setAulas] = useState([]); // Nuevo estado para aulas
-
-  // Configurar React Hook Form con Yup
+const FormularioHorarioEstudiante = ({
+  onSubmitSuccess,
+  onCancel,
+  initialData = null,
+  grados,
+  materias,
+  profesores,
+  aulas,
+}) => {
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
+    setError, // Para asignar errores específicos
     formState: { errors, isSubmitting },
     reset,
   } = useForm({
-    resolver: yupResolver(HorarioEstudianteSchema),
+    resolver: yupResolver(HorarioEstudianteSchema, { context: { isEditing: !!initialData } }),
     defaultValues: {
       gradoId: '',
       seccionId: '',
@@ -31,109 +33,121 @@ const FormularioHorarioEstudiante = () => {
       dia_semana_Horario: '',
       hora_inicio_Horario: '',
       hora_fin_Horario: '',
-      aulaId: '', // Campo aulaId agregado
+      aulaId: '',
     },
   });
 
-  // Observar cambios en 'gradoId' para actualizar secciones
+  const [errorGeneral, setErrorGeneral] = useState(''); // Para errores generales
   const gradoSeleccionado = watch('gradoId');
+  const [seccionesDisponibles, setSeccionesDisponibles] = useState([]);
 
   useEffect(() => {
-    // Funciones para obtener datos desde el back-end
-    const fetchGrados = async () => {
-      try {
-        const response = await axios.get('http://localhost:3000/grados');
-        setGrados(response.data);
-      } catch (error) {
-        console.error('Error al obtener grados:', error);
-        alert('Error al obtener grados');
-      }
-    };
-
-    const fetchMaterias = async () => {
-      try {
-        const response = await axios.get('http://localhost:3000/materias');
-        setMaterias(response.data);
-      } catch (error) {
-        console.error('Error al obtener materias:', error);
-        alert('Error al obtener materias');
-      }
-    };
-
-    const fetchProfesores = async () => {
-      try {
-        const response = await axios.get('http://localhost:3000/profesores');
-        setProfesores(response.data);
-      } catch (error) {
-        console.error('Error al obtener profesores:', error);
-        alert('Error al obtener profesores');
-      }
-    };
-
-    const fetchAulas = async () => { // Función para obtener aulas
-      try {
-        const response = await axios.get('http://localhost:3000/aulas');
-        setAulas(response.data);
-      } catch (error) {
-        console.error('Error al obtener aulas:', error);
-        alert('Error al obtener aulas');
-      }
-    };
-
-    fetchGrados();
-    fetchMaterias();
-    fetchProfesores();
-    fetchAulas(); // Llamar a fetchAulas
-  }, []);
-
-  useEffect(() => {
-    // Actualizar las secciones según el grado seleccionado
     const fetchSecciones = async () => {
       if (gradoSeleccionado) {
         try {
-          const response = await axios.get(`http://localhost:3000/secciones?id_grado=${gradoSeleccionado}`);
-          setSecciones(response.data);
+          const response = await axios.get(`http://localhost:3000/secciones?gradoId=${gradoSeleccionado}`);
+          setSeccionesDisponibles(response.data);
         } catch (error) {
-          console.error('Error al obtener secciones:', error);
-          alert('Error al obtener secciones');
+          console.error('Error al obtener las secciones:', error);
+          Swal.fire('Error', 'Hubo un problema al obtener las secciones.', 'error');
         }
       } else {
-        setSecciones([]);
+        setSeccionesDisponibles([]);
       }
     };
 
     fetchSecciones();
   }, [gradoSeleccionado]);
 
-  const onSubmit = async (data) => {
-    console.log('Datos enviados:', data);
-    // Transformar los campos a números
-    const transformedData = {
-      ...data,
-      gradoId: Number(data.gradoId),
-      seccionId: Number(data.seccionId),
-      materiaId: Number(data.materiaId),
-      profesorId: Number(data.profesorId),
-      aulaId: Number(data.aulaId), // Asegurarse de que aulaId es un número
-    };
-    
+  useEffect(() => {
+    if (initialData) {
+      // Establecemos todos los campos excepto las horas
+      setValue('gradoId', initialData.gradoId || '');
+      setValue('seccionId', initialData.seccionId || '');
+      setValue('materiaId', initialData.materiaId || '');
+      setValue('profesorId', initialData.profesorId || '');
+      setValue('dia_semana_Horario', initialData.dia_semana_Horario || '');
+      setValue('aulaId', initialData.aulaId || '');
+      // No pre-poblamos hora_inicio_Horario ni hora_fin_Horario
+    }
+  }, [initialData, setValue]);
 
+  const onSubmit = async (data) => {
     try {
-      const response = await axios.post('http://localhost:3000/horarios/estudiante', transformedData);
-      console.log('Respuesta del servidor:', response);
-      alert('Horario de estudiante creado exitosamente');
+      // Resetear errores generales antes de intentar enviar
+      setErrorGeneral('');
+
+      const transformedData = {
+        gradoId: Number(data.gradoId),
+        seccionId: Number(data.seccionId),
+        materiaId: Number(data.materiaId),
+        profesorId: Number(data.profesorId),
+        aulaId: Number(data.aulaId),
+        dia_semana_Horario: data.dia_semana_Horario,
+        ...(data.hora_inicio_Horario && { hora_inicio_Horario: data.hora_inicio_Horario }),
+        ...(data.hora_fin_Horario && { hora_fin_Horario: data.hora_fin_Horario }),
+      };
+
+      let response;
+
+      if (initialData) {
+        // Editar horario existente
+        response = await axios.put(
+          `http://localhost:3000/horarios/estudiante/${initialData.id_Horario}`,
+          transformedData
+        );
+        Swal.fire('Éxito', 'Horario de estudiante actualizado exitosamente.', 'success');
+      } else {
+        // Crear nuevo horario
+        response = await axios.post('http://localhost:3000/horarios/estudiante', transformedData);
+        Swal.fire('Éxito', 'Horario de estudiante creado exitosamente.', 'success');
+      }
+
       reset();
+
+      if (onSubmitSuccess) onSubmitSuccess(response.data);
     } catch (error) {
-      console.error('Error al crear el horario de estudiante:', error);
-      alert('Error al crear el horario de estudiante');
+      console.error('Error al guardar el horario de estudiante:', error);
+
+      if (error.response && error.response.data) {
+        console.log('Respuesta de error del backend:', error.response.data);
+
+        const { errors: backendErrors, message: backendMessage, error: backendError } = error.response.data;
+
+        if (backendErrors && typeof backendErrors === 'object') {
+          // Asignar errores a los campos correspondientes
+          Object.keys(backendErrors).forEach((field) => {
+            setError(field, {
+              type: 'server',
+              message: backendErrors[field],
+            });
+          });
+        }
+
+        // Determinar el mensaje de error
+        const message = backendMessage || backendError || 'Hubo un problema al guardar el horario.';
+
+        if (message) {
+          // Asignar error general
+          setErrorGeneral(message);
+        }
+
+        // Mostrar alerta
+        Swal.fire('Error', 'Hubo un problema al guardar el horario. Revisa los errores en el formulario.', 'error');
+      } else {
+        setErrorGeneral('Hubo un problema inesperado al guardar el horario.');
+        Swal.fire('Error', 'Hubo un problema al guardar el horario.', 'error');
+      }
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <h1 className="text-3xl font-bold mb-6">Formulario de Horario para Estudiante</h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-6 rounded-lg shadow-md">
-        
+    <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+      <h2 className="text-2xl font-bold mb-4">
+        {initialData ? 'Editar Horario de Estudiante' : 'Crear Horario de Estudiante'}
+      </h2>
+      {errorGeneral && <p className="text-red-500 mb-4">{errorGeneral}</p>} {/* Mostrar error general */}
+      <form onSubmit={handleSubmit(onSubmit)}>
         {/* Grado */}
         <div className="mb-4">
           <label className="block text-gray-700">Grado</label>
@@ -160,7 +174,7 @@ const FormularioHorarioEstudiante = () => {
             disabled={!gradoSeleccionado}
           >
             <option value="">Seleccione una sección</option>
-            {secciones.map((seccion) => (
+            {seccionesDisponibles.map((seccion) => (
               <option key={seccion.id_Seccion} value={seccion.id_Seccion}>
                 {seccion.nombre_Seccion}
               </option>
@@ -213,7 +227,7 @@ const FormularioHorarioEstudiante = () => {
             <option value="">Seleccione un aula</option>
             {aulas.map((aula) => (
               <option key={aula.id_aula} value={aula.id_aula}>
-                {aula.nombre_Aula} {/* Ajusta según los campos de tu aula */}
+                {aula.nombre_Aula}
               </option>
             ))}
           </select>
@@ -230,18 +244,16 @@ const FormularioHorarioEstudiante = () => {
             <option value="">Seleccione un día</option>
             <option value="Lunes">Lunes</option>
             <option value="Martes">Martes</option>
-            <option value="Miércoles">Miercoles</option>
+            <option value="Miércoles">Miércoles</option>
             <option value="Jueves">Jueves</option>
             <option value="Viernes">Viernes</option>
-            <option value="Sábado">Sábado</option>
-            <option value="Domingo">Domingo</option>
           </select>
           {errors.dia_semana_Horario && <p className="text-red-500">{errors.dia_semana_Horario.message}</p>}
         </div>
 
         {/* Hora de Inicio */}
         <div className="mb-4">
-          <label className="block text-gray-700">Hora de Inicio</label>
+          <label className="block text-gray-700">Hora de Inicio (ej: 13:00)</label>
           <input
             type="time"
             className={`border p-2 rounded-lg w-full ${errors.hora_inicio_Horario ? 'border-red-500' : ''}`}
@@ -250,30 +262,53 @@ const FormularioHorarioEstudiante = () => {
           {errors.hora_inicio_Horario && <p className="text-red-500">{errors.hora_inicio_Horario.message}</p>}
         </div>
 
-         {/* Hora de fin */}
-         <div className="mb-4"> 
-          <label className="block text-gray-700">Hora de Fin</label>
+        {/* Hora de Fin */}
+        <div className="mb-4">
+          <label className="block text-gray-700">Hora de Fin (ej: 14:30)</label>
           <input
             type="time"
             className={`border p-2 rounded-lg w-full ${errors.hora_fin_Horario ? 'border-red-500' : ''}`}
             {...register('hora_fin_Horario')}
           />
-          {errors.hora_fin_Horario && <p className="text-red-500">{errors.hora_fin_Horario.message}</p>} 
+          {errors.hora_fin_Horario && <p className="text-red-500">{errors.hora_fin_Horario.message}</p>}
         </div>
 
-
-
-        {/* Botón de Enviar */}
-        <button
-          type="submit"
-          className={`bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Enviando...' : 'Registrar Horario'}
-        </button>
+        {/* Botones */}
+        <div className="flex justify-end">
+          <button
+            type="button"
+            className="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600"
+            onClick={() => {
+              reset();
+              setErrorGeneral(''); // Resetear errores generales
+              if (onCancel) onCancel();
+            }}
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            className={`bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 ${
+              isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Guardando...' : initialData ? 'Guardar Cambios' : 'Registrar Horario'}
+          </button>
+        </div>
       </form>
     </div>
   );
+};
+
+FormularioHorarioEstudiante.propTypes = {
+  onSubmitSuccess: PropTypes.func.isRequired,
+  onCancel: PropTypes.func,
+  initialData: PropTypes.object,
+  grados: PropTypes.array.isRequired,
+  materias: PropTypes.array.isRequired,
+  profesores: PropTypes.array.isRequired,
+  aulas: PropTypes.array.isRequired,
 };
 
 export default FormularioHorarioEstudiante;
