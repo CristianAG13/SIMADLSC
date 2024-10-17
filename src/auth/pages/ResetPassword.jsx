@@ -70,7 +70,6 @@ export const ResetPassword = () => {
                 className="block w-full rounded-lg border border-gray-300 p-3 shadow-md focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition ease-in-out duration-150"
                 placeholder="Ingresa tu nueva contraseña"
                 required
-                autoComplete='off'
               />
             </div>
             <div>
@@ -86,7 +85,6 @@ export const ResetPassword = () => {
                 className="block w-full rounded-lg border border-gray-300 p-3 shadow-md focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition ease-in-out duration-150"
                 placeholder="Confirma tu nueva contraseña"
                 required
-                autoComplete='off'
               />
             </div>
 

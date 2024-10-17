@@ -17,7 +17,7 @@ export const getAllUsers = async (token) => {
   return response.json();
 };
 
-// Crear un usuario general
+
 export const createUser = async (userData, token) => {
   if (!token) {
     throw new Error('No se proporcionó un token de autenticación');
@@ -34,28 +34,7 @@ export const createUser = async (userData, token) => {
 
   if (!response.ok) {
     throw new Error('Error al crear el usuario');
-  }
-
-  return response.json();
-};
-
-// Crear un usuario específicamente con rol de Estudiante
-export const createStudentUser = async (userData, studentData, token) => {
-  if (!token) {
-    throw new Error('No se proporcionó un token de autenticación');
-  }
-  const response = await fetch(`${BASE_URL}/register-student`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-    credentials: 'include',
-    body: JSON.stringify({ ...userData, ...studentData }),
-  });
-
-  if (!response.ok) {
-    throw new Error('Error al crear el usuario como estudiante');
+    
   }
 
   return response.json();
@@ -103,13 +82,13 @@ export const deleteUser = async (id, token) => {
 
 // Bloquear o desbloquear un usuario
 export const toggleBlockUser = async (id, bloqueado_Usuario, token) => {
-  const response = await fetch(`${BASE_URL}/${id}/block`, {
+  const response = await fetch(`http://localhost:3000/users/${id}/block`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     },
-    body: JSON.stringify({ bloqueado_Usuario }),
+    body: JSON.stringify(updatedData),
   });
 
   if (!response.ok) {

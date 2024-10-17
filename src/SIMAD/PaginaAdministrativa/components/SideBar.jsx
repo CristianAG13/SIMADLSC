@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 export const SideBar = () => {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token')); // Mantén el estado de autenticación
-    const [role, setRole] = useState(localStorage.getItem('role')); // Obtener el rol del usuario
+    const role = localStorage.getItem('role'); // Obtener el rol del usuario sin usar useState
     const [openSections, setOpenSections] = useState({
         asistencia: false,
         eventos: false,
@@ -33,7 +33,7 @@ export const SideBar = () => {
         console.log('Token y rol eliminados');
 
         // Redirige utilizando useNavigate
-        window.location.href = '/paginainformativa'; 
+        navigate('/paginainformativa'); 
     };
 
     useEffect(() => {
@@ -63,7 +63,7 @@ export const SideBar = () => {
                     SIMADLSC
                 </Link>
                 
-                {/* Asistencia: Solo visible para admin, adminStaff, y profesores */}
+                {/* Asistencia: Solo visible para admin, superadmin y profesor */}
                 {(role === 'admin' || role === 'superadmin' || role === 'profesor') && (
                     <div>
                         <div onClick={() => toggleSection('asistencia')} className="cursor-pointer flex items-center space-x-2 py-2">
@@ -97,7 +97,7 @@ export const SideBar = () => {
                     )}
                 </div>
 
-                {/* Horarios: Visible para admin, adminStaff, y profesores */}
+                {/* Horarios: Visible para admin, superadmin y profesor */}
                 {(role === 'admin' || role === 'superadmin' || role === 'profesor') && (
                     <div>
                         <div onClick={() => toggleSection('horarios')} className="cursor-pointer flex items-center space-x-2 py-2">
@@ -114,7 +114,7 @@ export const SideBar = () => {
                     </div>
                 )}
 
-                {/* Matrícula: Visible para admin, adminStaff, y estudiantes */}
+                {/* Matrícula: Visible para admin, superadmin y estudiante */}
                 {(role === 'admin' || role === 'superadmin' || role === 'estudiante') && (
                     <div>
                         <div onClick={() => toggleSection('matricula')} className="cursor-pointer flex items-center space-x-2 py-2">
@@ -136,7 +136,7 @@ export const SideBar = () => {
                     </div>
                 )}
 
-                {/* Usuarios: Solo visible para admin */}
+                {/* Usuarios: Solo visible para superadmin */}
                 {role === 'superadmin' && (
                     <div>
                         <div onClick={() => toggleSection('usuarios')} className="cursor-pointer flex items-center space-x-2 py-2">

@@ -1,4 +1,3 @@
-// ListaHorarios.jsx
 import React, { useState, useMemo } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -24,10 +23,37 @@ const ordenDias = {
   'Domingo': 7,
 };
 
-const ListaHorarios = ({ horarios, onEditHorario, setHorarios, materias, profesores, aulas, secciones }) => {
+const ListaHorarios = ({
+  horarios = [], // Valor por defecto como arreglo vacío
+  setHorarios,
+  materias,
+  profesores,
+  aulas,
+  secciones
+}) => {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [horarioSeleccionado, setHorarioSeleccionado] = useState(null);
   const [detallesAbiertos, setDetallesAbiertos] = useState({}); // Para manejar detalles por fila
+
+  // Uso de useMemo siempre antes de cualquier condición
+  const horariosOrdenados = useMemo(() => {
+    if (!horarios) return [];
+    return [...horarios].sort((a, b) => {
+      const ordenA = ordenDias[a.dia_semana_Horario] || 8; // Asignar un valor alto si no está en el mapeo
+      const ordenB = ordenDias[b.dia_semana_Horario] || 8;
+      if (ordenA !== ordenB) {
+        return ordenA - ordenB;
+      } else {
+        // Si están en el mismo día, ordenar por hora de inicio
+        return a.hora_inicio_Horario.localeCompare(b.hora_inicio_Horario);
+      }
+    });
+  }, [horarios]);
+
+  // Manejo del caso en que no hay horarios
+  if (horariosOrdenados.length === 0) {
+    return <p>No hay horarios disponibles.</p>;
+  }
 
   // Función para eliminar un horario
   const eliminarHorario = async (id) => {
@@ -91,25 +117,6 @@ const ListaHorarios = ({ horarios, onEditHorario, setHorarios, materias, profeso
     }));
   };
 
-  // Manejo del caso en que no hay horarios
-  if (!horarios) {
-    return <p>No hay horarios disponibles.</p>;
-  }
-
-  // Ordenar los horarios de lunes a viernes usando useMemo para optimizar el rendimiento
-  const horariosOrdenados = useMemo(() => {
-    return [...horarios].sort((a, b) => {
-      const ordenA = ordenDias[a.dia_semana_Horario] || 8; // Asignar un valor alto si no está en el mapeo
-      const ordenB = ordenDias[b.dia_semana_Horario] || 8;
-      if (ordenA !== ordenB) {
-        return ordenA - ordenB;
-      } else {
-        // Si están en el mismo día, ordenar por hora de inicio
-        return a.hora_inicio_Horario.localeCompare(b.hora_inicio_Horario);
-      }
-    });
-  }, [horarios]);
-
   return (
     <div>
       <h2 className="text-2xl font-semibold mb-4">Lista de Horarios</h2>
@@ -142,7 +149,7 @@ const ListaHorarios = ({ horarios, onEditHorario, setHorarios, materias, profeso
                     <td className="py-2 px-4 border-b flex justify-center space-x-2">
                       <button
                         className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"
-                        onClick={() => onEditHorario(horario)}
+                        onClick={() => abrirModalEditar(horario.id_Horario)}
                       >
                         Editar
                       </button>
@@ -223,8 +230,8 @@ const ListaHorarios = ({ horarios, onEditHorario, setHorarios, materias, profeso
 };
 
 ListaHorarios.propTypes = {
-  horarios: PropTypes.array.isRequired,
-  onEditHorario: PropTypes.func.isRequired,
+  // onEditHorario: PropTypes.func.isRequired, // Eliminado porque ya no se utiliza
+  horarios: PropTypes.array, // Removido isRequired para permitir el valor por defecto
   setHorarios: PropTypes.func.isRequired,
   materias: PropTypes.array.isRequired,
   profesores: PropTypes.array.isRequired,

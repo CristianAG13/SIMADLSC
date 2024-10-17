@@ -4,7 +4,7 @@ import UseFetchEventos from './Hook/UseFetchEventos';
 import Swal from 'sweetalert2';
 import '@sweetalert2/theme-bulma/bulma.css';
 
-export const GestionEventos = () => {
+const GestionEventos = () => {
   const { data: eventos, setData, loading, error } = UseFetchEventos();
   const [filters, setFilters] = useState({
     estado: '',
