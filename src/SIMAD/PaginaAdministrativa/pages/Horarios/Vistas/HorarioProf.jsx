@@ -7,18 +7,18 @@ import 'jspdf-autotable';
 const MySwal = withReactContent(Swal);
 
 export const HorarioProf = () => {
-  const [profesores, setProfesores] = useState([]); // Lista de profesores
-  const [idProfesorSeleccionado, setIdProfesorSeleccionado] = useState(null); // ID del profesor seleccionado
+  const [profesores, setProfesores] = useState([]);
+  const [idProfesorSeleccionado, setIdProfesorSeleccionado] = useState(null);
   const [nombreProfesor, setNombreProfesor] = useState('');
   const [apellidosProfesor, setApellidosProfesor] = useState('');
   const [horarios, setHorarios] = useState([]);
   const [horasLecciones, setHorasLecciones] = useState([]);
-  const [diasSemana, setDiasSemana] = useState([]);
   const [error, setError] = useState(null);
 
-  // Obtener rol e id del profesor desde localStorage
   const role = localStorage.getItem('role');
   const idProfesorLocal = localStorage.getItem('id_profesor');
+
+  const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
 
   useEffect(() => {
     const obtenerProfesores = async () => {
@@ -31,9 +31,7 @@ export const HorarioProf = () => {
           },
         });
 
-        if (!response.ok) {
-          throw new Error('Error al obtener la lista de profesores.');
-        }
+        if (!response.ok) throw new Error('Error al obtener la lista de profesores.');
 
         const profesoresData = await response.json();
         setProfesores(profesoresData);
@@ -43,7 +41,6 @@ export const HorarioProf = () => {
       }
     };
 
-    // Solo obtener la lista de profesores si el rol es admin o superadmin
     if (role === 'admin' || role === 'superadmin') {
       obtenerProfesores();
     }
@@ -53,15 +50,10 @@ export const HorarioProf = () => {
     const obtenerDatosProfesorYHorario = async () => {
       try {
         let profesorId = idProfesorSeleccionado;
+        if (role === 'profesor') profesorId = idProfesorLocal;
 
-        // Si el rol es profesor, automáticamente selecciona su ID
-        if (role === 'profesor') {
-          profesorId = idProfesorLocal;
-        }
+        if (!profesorId) return;
 
-        if (!profesorId) return; // Si no hay un profesor seleccionado, no hacer nada
-
-        // Obtener datos del profesor seleccionado
         const profesorResponse = await fetch(`http://localhost:3000/profesores/${profesorId}`, {
           method: 'GET',
           headers: {
@@ -70,15 +62,12 @@ export const HorarioProf = () => {
           },
         });
 
-        if (!profesorResponse.ok) {
-          throw new Error('Error al obtener los datos del profesor desde el servidor.');
-        }
+        if (!profesorResponse.ok) throw new Error('Error al obtener los datos del profesor desde el servidor.');
 
         const profesorData = await profesorResponse.json();
         setNombreProfesor(profesorData.nombre_Profesor);
         setApellidosProfesor(`${profesorData.apellido1_Profesor} ${profesorData.apellido2_Profesor}`);
 
-        // Obtener horarios del profesor seleccionado
         const horariosResponse = await fetch(`http://localhost:3000/horarios/profesor/${profesorId}`, {
           method: 'GET',
           headers: {
@@ -87,23 +76,21 @@ export const HorarioProf = () => {
           },
         });
 
-        if (!horariosResponse.ok) {
-          throw new Error('Error al obtener los horarios desde el servidor.');
-        }
+        if (!horariosResponse.ok) throw new Error('Error al obtener los horarios desde el servidor.');
 
         const horariosData = await horariosResponse.json();
-        console.log('Datos de horarios:', horariosData); // Verifica los datos aquí
 
         if (Array.isArray(horariosData)) {
-          setHorarios(horariosData);
-          const uniqueDays = [...new Set(horariosData.map((h) => h.dia_semana_Horario))].sort((a, b) => {
-            const diasOrden = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
-            return diasOrden.indexOf(a) - diasOrden.indexOf(b);
-          });
-          const uniqueHours = horariosData.map((h) => ({ inicio: convertirHora12(h.hora_inicio_Horario), fin: convertirHora12(h.hora_fin_Horario) }));
+          const horariosOrdenados = horariosData.sort((a, b) => a.hora_inicio_Horario.localeCompare(b.hora_inicio_Horario));
+          setHorarios(horariosOrdenados);
+
+          const uniqueHours = [...new Set(horariosOrdenados.map(h => `${h.hora_inicio_Horario} - ${h.hora_fin_Horario}`))]
+            .map(hora => ({
+              inicio: convertirHora12(hora.split(' - ')[0]),
+              fin: convertirHora12(hora.split(' - ')[1]),
+            }));
 
           setHorasLecciones(uniqueHours);
-          setDiasSemana(uniqueDays);
         } else {
           setHorarios([]);
         }
@@ -114,13 +101,13 @@ export const HorarioProf = () => {
     };
 
     obtenerDatosProfesorYHorario();
-  }, [idProfesorSeleccionado, role, idProfesorLocal]); // Dependiendo del profesor seleccionado y el rol
+  }, [idProfesorSeleccionado, role, idProfesorLocal]);
 
   const convertirHora12 = (hora24) => {
     const [hora, minuto] = hora24.split(':');
     let horaNum = parseInt(hora, 10);
     const ampm = horaNum >= 12 ? 'PM' : 'AM';
-    horaNum = horaNum % 12 || 12; // Convertir 0 a 12
+    horaNum = horaNum % 12 || 12;
     return `${horaNum}:${minuto} ${ampm}`;
   };
 
@@ -129,7 +116,7 @@ export const HorarioProf = () => {
   }
 
   const obtenerHorarioPorDiaYHora = (dia, horaInicio) => {
-    return horarios.find((horario) => horario.dia_semana_Horario === dia && convertirHora12(horario.hora_inicio_Horario) === horaInicio);
+    return horarios.find(horario => horario.dia_semana_Horario === dia && convertirHora12(horario.hora_inicio_Horario) === horaInicio);
   };
 
   const mostrarDetalles = (horario) => {
@@ -137,13 +124,6 @@ export const HorarioProf = () => {
       MySwal.fire({
         title: `Detalles de la clase`,
         html: `<b>Asignatura:</b> ${horario.materia?.nombre_Materia || 'N/A'}<br><b>Aula:</b> ${horario.aula?.nombre_Aula || 'N/A'}<br><b>Sección:</b> ${horario.seccion?.nombre_Seccion || 'N/A'}`,
-        icon: 'info',
-        confirmButtonText: 'Cerrar',
-      });
-    } else {
-      MySwal.fire({
-        title: 'Detalles de la clase',
-        text: 'No hay clase en este horario',
         icon: 'info',
         confirmButtonText: 'Cerrar',
       });
@@ -162,9 +142,7 @@ export const HorarioProf = () => {
       diasSemana.forEach((dia) => {
         const horario = obtenerHorarioPorDiaYHora(dia, hora.inicio);
         fila.push(
-          horario
-            ? `Asig: ${horario.materia?.nombre_Materia || 'N/A'}\nAula: ${horario.aula?.nombre_Aula || 'N/A'}`
-            : '-'
+          horario ? `Asig: ${horario.materia?.nombre_Materia || 'N/A'}\nAula: ${horario.aula?.nombre_Aula || 'N/A'}` : '-'
         );
       });
       tableRows.push(fila);
@@ -234,7 +212,7 @@ export const HorarioProf = () => {
                             onClick={() => mostrarDetalles(horario)}
                             className="text-blue-500 underline"
                           >
-                            {horario.seccion?.nombre_Seccion || 'N/A'}
+                            {horario.seccion?.nombre_Seccion || 'Ver detalles'}
                           </button>
                         ) : (
                           '-'
