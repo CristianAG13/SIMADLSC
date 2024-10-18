@@ -46,7 +46,7 @@ const EventosEdit = () => {
           ubicacion: eventoData.id_ubicacion,
           tipo_evento: eventoData.id_tipo_evento,
         });
-      } catch (error) {
+      } catch {
         Swal.fire({
           icon: 'error',
           title: 'Error',
