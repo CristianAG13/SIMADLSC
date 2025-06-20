@@ -7,8 +7,6 @@ import PropTypes from 'prop-types';
 // URL base de la API
 const API_BASE_URL =
    import.meta.env.NODE_ENV === 'production'
-    ? 'https://simadlsc-backend-production.up.railway.app'
-    : 'http://localhost:3000';
 
 // Función utilitaria para formatear hora de 24 horas a 12 horas con AM/PM
 const formatearHora12 = (hora24) => {

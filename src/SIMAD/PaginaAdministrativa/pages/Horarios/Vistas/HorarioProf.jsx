@@ -4,8 +4,6 @@ import 'jspdf-autotable';
 
 const API_BASE_URL =
   import.meta.env.NODE_ENV === 'production'
-    ? 'https://simadlsc-backend-production.up.railway.app'
-    : 'http://localhost:3000';
 
 
 const lessonTimes = {

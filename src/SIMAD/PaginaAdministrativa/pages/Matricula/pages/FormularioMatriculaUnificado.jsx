@@ -22,9 +22,6 @@ export const FormularioMatriculaUnificado = () => {
 
   const API_BASE_URL =
     import.meta.env.NODE_ENV === "production"
-      ? "https://simadlsc-backend-production.up.railway.app"
-      : "http://localhost:3000";
-
   const handleMatriculaTypeChange = (e) => {
     setMatriculaType(e.target.value);
   };

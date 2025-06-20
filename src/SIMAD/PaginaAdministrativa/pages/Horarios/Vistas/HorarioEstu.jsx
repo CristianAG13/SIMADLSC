@@ -9,8 +9,6 @@ const MySwal = withReactContent(Swal);
 
 const API_BASE_URL =
    import.meta.env.NODE_ENV === 'production'
-    ? 'https://simadlsc-backend-production.up.railway.app'
-    : 'http://localhost:3000';
 
 const lessonTimes = {
   "1": { start: "07:00", end: "07:40" },
