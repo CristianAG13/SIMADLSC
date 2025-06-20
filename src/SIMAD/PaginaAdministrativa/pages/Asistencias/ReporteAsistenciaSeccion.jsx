@@ -4,7 +4,6 @@ import { generarPDFSeccion } from './utils/pdfGeneratorSeccion';
 import getCloudinaryUrl from '../../../PaginaInformativa/utils/cloudinary';
 import { useReporteAsistenciaSeccion } from './Hook/useReporteAsistenciaSeccion';
 import useAllSecciones from './Hook/seAllSecciones';
-import useMaterias from './Hook/useMaterias';
 import Swal from 'sweetalert2';
 import '@sweetalert2/theme-bulma/bulma.css';
 
@@ -14,14 +13,10 @@ export const ReporteAsistenciaSeccion = () => {
   const [fechaFin, setFechaFin] = useState("");
 
   // Obtenemos la lógica para buscar el reporte
-  const { reporte, loading, error, buscarReporteSeccion, idMateriaSelected, setIdMateriaSelected } = useReporteAsistenciaSeccion();
+  const { reporte, loading, error, buscarReporteSeccion } = useReporteAsistenciaSeccion();
   // Hook para obtener todas las secciones
   const { secciones, loadingSecciones, errorSecciones } = useAllSecciones();
-  
-  // Hook para obtener todas las materias - ignoramos loadingMaterias ya que no lo usamos directamente
-  const { materias } = useMaterias();
-
-  // Para controlar si el usuario ya presionó "Consultar"
+    // Para controlar si el usuario ya presionó "Consultar"
   const [hasSearched, setHasSearched] = useState(false);
 
   // Validación y búsqueda del reporte
@@ -77,44 +72,12 @@ export const ReporteAsistenciaSeccion = () => {
         confirmButtonColor: "#2563EB",
       });
       return;    }    
-    
-    setHasSearched(true);
-    const idSeccion = seccionEncontrada.id_Seccion;
-    try {
-      // Si la materia seleccionada existe y no es una cadena vacía
-      const materiaParam = idMateriaSelected && idMateriaSelected !== "" ? idMateriaSelected : undefined;
-      
-      // Si hay filtro de materia, mostramos un mensaje de información
-      if (materiaParam) {
-        const nombreMateria = materias.find(m => m.id_Materia.toString() === materiaParam)?.nombre_Materia || "Seleccionada";
-        Swal.fire({
-          icon: "info",
-          title: "Aplicando filtro",
-          text: `Buscando asistencias de la sección ${nombreSeccion} solo para la materia ${nombreMateria}`,
-          toast: true,
-          position: "top-end",
-          timer: 2500,
-          showConfirmButton: false,
-          timerProgressBar: true
-        });
-      }
-      
-      console.log("Buscando reporte con parámetros:", {
-        idSeccion, 
-        fechaInicio, 
-        fechaFin,
-        idMateria: materiaParam
-      });
-      
-      await buscarReporteSeccion({ 
-        idSeccion, 
-        fechaInicio, 
-        fechaFin,
-        idMateria: materiaParam
-      });
-    } catch (error) {
-      console.error("Error al buscar reporte de sección:", error);
-    }
+      setHasSearched(true);
+    const idSeccion = seccionEncontrada.id_Seccion;    await buscarReporteSeccion({ 
+      idSeccion, 
+      fechaInicio, 
+      fechaFin
+    });
   };
 
   // Reseteo de la bandera de búsqueda al cambiar algún campo
@@ -127,33 +90,8 @@ export const ReporteAsistenciaSeccion = () => {
     setHasSearched(false);
   };  const handleChangeFechaFin = (e) => {
     setFechaFin(e.target.value);
-    setHasSearched(false);
-  };
-  const handleChangeMateria = (e) => {
-    // Aseguramos que un string vacío o un valor válido se establezcan correctamente
-    const materiaValue = e.target.value;
-    const nombreMateria = materiaValue ? materias.find(m => m.id_Materia.toString() === materiaValue)?.nombre_Materia : "Todas";
-    
-    console.log(`Materia seleccionada: ID=${materiaValue}, Nombre=${nombreMateria}`);
-    
-    setIdMateriaSelected(materiaValue);
-    setHasSearched(false);
-    
-    // Si se ha buscado previamente, reiniciar el reporte para evitar confusiones
-    if (reporte) {
-      Swal.fire({
-        icon: "info",
-        title: "Filtro cambiado",
-        text: `Se ha ${materiaValue ? `seleccionado la materia: ${nombreMateria}` : "quitado el filtro de materia"}. Realiza la búsqueda nuevamente.`,
-        confirmButtonColor: "#2563EB",
-        toast: true,
-        position: "top-end",
-        timer: 3000,
-        showConfirmButton: false,
-        timerProgressBar: true
-      });
-    }
-  };
+    setHasSearched(false);  };
+  // Se ha eliminado el método handleChangeMateria ya que ya no se filtra por materia
 
   // useEffect para mostrar alertas en función de la búsqueda y errores
   useEffect(() => {
@@ -183,7 +121,6 @@ export const ReporteAsistenciaSeccion = () => {
       });
       setHasSearched(false);
     }  }, [hasSearched, loading, error, reporte]);
-
   // Integración del botón para exportar a PDF usando generarPDFSeccion
   const handleExportPDF = async () => {
     // Obtenemos el logo desde Cloudinary con los parámetros deseados
@@ -198,11 +135,6 @@ export const ReporteAsistenciaSeccion = () => {
     reader.onloadend = () => {
       const logoBase64 = reader.result;
       
-      // Determinar el nombre de la materia si hay un filtro activo
-      const nombreMateria = idMateriaSelected 
-        ? materias.find(m => m.id_Materia.toString() === idMateriaSelected)?.nombre_Materia || ""
-        : "";
-      
       generarPDFSeccion({
         logoBase64,
         nombreSeccion: reporte.nombre_Seccion,
@@ -210,7 +142,7 @@ export const ReporteAsistenciaSeccion = () => {
         fechaFin,
         estadisticas: reporte.estadisticas_generales,
         estudiantes: reporte.estudiantes,
-        materiaFiltrada: nombreMateria,
+        materiaFiltrada: "",
       });
     };
   };
@@ -232,32 +164,6 @@ export const ReporteAsistenciaSeccion = () => {
               className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-md"
               placeholder="7-1, 10-2, 11-8, etc."
             />
-          </div>
-           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-              Materia
-            </label>            <select
-              value={idMateriaSelected}
-              onChange={handleChangeMateria}
-              className={`mt-1 block w-full p-2 border ${
-                idMateriaSelected ? 'border-green-500 dark:border-green-700' : 'border-gray-300 dark:border-gray-700'
-              } bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-md`}
-            >
-              <option value="">Todas las materias</option>
-              {materias.map((materia) => (
-                <option 
-                  key={materia.id_Materia} 
-                  value={materia.id_Materia.toString()}
-                >
-                  {materia.nombre_Materia}
-                </option>
-              ))}
-            </select>
-            {idMateriaSelected && (
-              <p className="mt-1 text-xs text-green-600 dark:text-green-400">
-                Filtrando por materia seleccionada
-              </p>
-            )}
           </div>
             <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -317,16 +223,6 @@ export const ReporteAsistenciaSeccion = () => {
             <h2 className="text-xl font-semibold">
               Sección: {reporte.nombre_Seccion}
             </h2>
-            {idMateriaSelected && (
-              <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900 rounded-md border-l-4 border-blue-500">
-                <h3 className="text-lg font-medium text-blue-600 dark:text-blue-400">
-                  Filtrado por materia: {materias.find(m => m.id_Materia.toString() === idMateriaSelected)?.nombre_Materia || ""}
-                </h3>
-                <p className="text-sm text-blue-500 dark:text-blue-300">
-                  Mostrando solo asistencias de esta materia
-                </p>
-              </div>
-            )}
           </div>
   
           <div className="mb-4">
