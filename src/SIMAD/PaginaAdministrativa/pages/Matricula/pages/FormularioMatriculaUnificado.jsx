@@ -20,8 +20,11 @@ export const FormularioMatriculaUnificado = () => {
   const [matriculaType, setMatriculaType] = useState("ordinaria");
   const [isEditable, setIsEditable] = useState(false); // Controla si los campos son editables
 
-  const API_BASE_URL =
-    import.meta.env.NODE_ENV === "production"
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 
+    (import.meta.env.NODE_ENV === "production"
+      ? "https://simadlsc-backend-production.up.railway.app"
+      : "http://localhost:3000");
+
   const handleMatriculaTypeChange = (e) => {
     setMatriculaType(e.target.value);
   };
