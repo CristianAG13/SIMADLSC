@@ -76,12 +76,28 @@ export const ReporteAsistenciaSeccion = () => {
         text: `No se encontró la sección "${nombreSeccion}". Verifica el nombre.`,
         confirmButtonColor: "#2563EB",
       });
-      return;
-    }    setHasSearched(true);
+      return;    }    
+    
+    setHasSearched(true);
     const idSeccion = seccionEncontrada.id_Seccion;
     try {
       // Si la materia seleccionada existe y no es una cadena vacía
       const materiaParam = idMateriaSelected && idMateriaSelected !== "" ? idMateriaSelected : undefined;
+      
+      // Si hay filtro de materia, mostramos un mensaje de información
+      if (materiaParam) {
+        const nombreMateria = materias.find(m => m.id_Materia.toString() === materiaParam)?.nombre_Materia || "Seleccionada";
+        Swal.fire({
+          icon: "info",
+          title: "Aplicando filtro",
+          text: `Buscando asistencias de la sección ${nombreSeccion} solo para la materia ${nombreMateria}`,
+          toast: true,
+          position: "top-end",
+          timer: 2500,
+          showConfirmButton: false,
+          timerProgressBar: true
+        });
+      }
       
       console.log("Buscando reporte con parámetros:", {
         idSeccion, 
@@ -113,14 +129,30 @@ export const ReporteAsistenciaSeccion = () => {
     setFechaFin(e.target.value);
     setHasSearched(false);
   };
-    const handleChangeMateria = (e) => {
+  const handleChangeMateria = (e) => {
     // Aseguramos que un string vacío o un valor válido se establezcan correctamente
     const materiaValue = e.target.value;
-    console.log(`Materia seleccionada: ID=${materiaValue}, Nombre=${
-      materiaValue ? materias.find(m => m.id_Materia.toString() === materiaValue)?.nombre_Materia : "Todas"
-    }`);
+    const nombreMateria = materiaValue ? materias.find(m => m.id_Materia.toString() === materiaValue)?.nombre_Materia : "Todas";
+    
+    console.log(`Materia seleccionada: ID=${materiaValue}, Nombre=${nombreMateria}`);
+    
     setIdMateriaSelected(materiaValue);
     setHasSearched(false);
+    
+    // Si se ha buscado previamente, reiniciar el reporte para evitar confusiones
+    if (reporte) {
+      Swal.fire({
+        icon: "info",
+        title: "Filtro cambiado",
+        text: `Se ha ${materiaValue ? `seleccionado la materia: ${nombreMateria}` : "quitado el filtro de materia"}. Realiza la búsqueda nuevamente.`,
+        confirmButtonColor: "#2563EB",
+        toast: true,
+        position: "top-end",
+        timer: 3000,
+        showConfirmButton: false,
+        timerProgressBar: true
+      });
+    }
   };
 
   // useEffect para mostrar alertas en función de la búsqueda y errores
@@ -281,15 +313,19 @@ export const ReporteAsistenciaSeccion = () => {
       {/* Renderizado del reporte */}
       {reporte && (        <div
           id="reporte-seccion"
-          className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow overflow-x-auto mb-6"
-        >          <div className="mb-4">
+          className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow overflow-x-auto mb-6"        >          <div className="mb-4">
             <h2 className="text-xl font-semibold">
               Sección: {reporte.nombre_Seccion}
             </h2>
             {idMateriaSelected && (
-              <h3 className="text-lg font-medium text-blue-600 dark:text-blue-400 mt-2">
-                Materia: {materias.find(m => m.id_Materia.toString() === idMateriaSelected)?.nombre_Materia || ""}
-              </h3>
+              <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900 rounded-md border-l-4 border-blue-500">
+                <h3 className="text-lg font-medium text-blue-600 dark:text-blue-400">
+                  Filtrado por materia: {materias.find(m => m.id_Materia.toString() === idMateriaSelected)?.nombre_Materia || ""}
+                </h3>
+                <p className="text-sm text-blue-500 dark:text-blue-300">
+                  Mostrando solo asistencias de esta materia
+                </p>
+              </div>
             )}
           </div>
   

@@ -1,6 +1,5 @@
 import { useState } from 'react';
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { obtenerReporteAsistenciaSeccion } from '../Services/AsistenciaService';
 
 export const useReporteAsistenciaSeccion = () => {
   const [reporte, setReporte] = useState(null);
@@ -13,39 +12,27 @@ export const useReporteAsistenciaSeccion = () => {
     setError(null);
     setReporte(null);
 
-    try {      // Construir URL con parámetros de consulta
-      const params = new URLSearchParams();
-      params.append('fechaInicio', fechaInicio);
-      params.append('fechaFin', fechaFin);
-      
-      // Verifica que el idMateria sea una cadena no vacía o un número válido antes de agregarlo
-      if (idMateria && idMateria !== "") {
-        params.append('id_Materia', idMateria.toString());
-        console.log(`Filtrando por materia ID: ${idMateria}`);
-      }
-      
-      const url = `${API_URL}/asistencias/reporte-seccion/${idSeccion}?${params.toString()}`;
-      const response = await fetch(url);
+    try {
+      console.log(`Iniciando búsqueda de reporte para sección ID: ${idSeccion}`);
+      console.log(`Parámetros: fechaInicio=${fechaInicio}, fechaFin=${fechaFin}, idMateria=${idMateria || 'todas'}`);
+        // Usamos el nuevo servicio que maneja el filtrado correctamente
+      const dataReporte = await obtenerReporteAsistenciaSeccion(idSeccion, fechaInicio, fechaFin, idMateria);
 
-      if (!response.ok) {
-        if (response.status === 404) {
-          // Sin resultados o sección no encontrada
-          throw new Error("NOT_FOUND");
-        } else {
-          // Error de servidor (500, etc.)
-          throw new Error("SERVER_ERROR");
-        }
-      }
-
-      const data = await response.json();
-
-      // Si tu backend retorna un objeto con "estudiantes" vacío,
-      // también podrías interpretarlo como "not-found".
-      if (!data || !data.estudiantes || data.estudiantes.length === 0) {
+      // Si el reporte no tiene datos, lanzamos un error
+      if (!dataReporte || !dataReporte.estudiantes || dataReporte.estudiantes.length === 0) {
+        console.log("No se encontraron datos para la sección con los filtros aplicados");
         throw new Error("NOT_FOUND");
       }
 
-      setReporte(data);
+      console.log(`Reporte obtenido con éxito: ${dataReporte.estudiantes.length} estudiantes`);
+      
+      // Si hay filtro de materia, verificamos que efectivamente haya datos
+      if (idMateria && idMateria !== "" && dataReporte.estudiantes.length === 0) {
+        console.log("No se encontraron datos para la materia seleccionada");
+        throw new Error("NOT_FOUND");
+      }
+      
+      setReporte(dataReporte);
     } catch (err) {
       if (err.message === "NOT_FOUND") {
         setError("not-found");
