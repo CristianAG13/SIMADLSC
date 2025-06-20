@@ -19,21 +19,35 @@ export const useReporteAsistencia = () => {
       try {
         // Usar los parámetros si se proporcionan, de lo contrario usar los valores del estado
         const fechaInicioFinal = fechaInicioParam !== undefined ? fechaInicioParam : fechaInicio;
-        const fechaFinFinal = fechaFinParam !== undefined ? fechaFinParam : fechaFin;
-          const data = await obtenerReporteAsistencias(cedula, fechaInicioFinal, fechaFinFinal, idPeriodo, idMateria);
+        const fechaFinFinal = fechaFinParam !== undefined ? fechaFinParam : fechaFin;          const data = await obtenerReporteAsistencias(cedula, fechaInicioFinal, fechaFinFinal, idPeriodo, idMateria);
         
         // Si data es un objeto que contiene la propiedad "asistencias"
         const asistenciasArray = Array.isArray(data)
           ? data
           : data?.asistencias || [];        if (asistenciasArray.length > 0) {
-          // Ya NO filtramos aquí porque el filtro ya lo aplicó el backend
-          // El parámetro idMateria ya se envía en la solicitud HTTP
-          setAsistencias(asistenciasArray);
+          // Verificamos si debemos filtrar por materia en el frontend
+          // A veces el backend no aplica el filtro correctamente
+          let resultadosFiltrados = asistenciasArray;
           
-          // Usamos directamente asistenciasArray en lugar de filtradas
-          if (asistenciasArray.length > 0) {
-            setGrado(asistenciasArray[0].id_grado.nivel);
-            setSeccion(asistenciasArray[0].id_Seccion.nombre_Seccion);
+          if (idMateria && idMateria !== "") {
+            console.log(`Filtrando por materia ID: ${idMateria} en el frontend`);
+            resultadosFiltrados = asistenciasArray.filter(asistencia => {
+              // Intentamos manejar diferentes estructuras de datos posibles
+              const materiaId = asistencia.id_Materia?.id_Materia || asistencia.id_Materia;
+              const materiaIdStr = materiaId?.toString();
+              
+              console.log(`Asistencia materia ID: ${materiaIdStr}, comparando con: ${idMateria}`);
+              return materiaIdStr === idMateria.toString();
+            });
+            
+            console.log(`Se filtraron ${resultadosFiltrados.length} de ${asistenciasArray.length} registros`);
+          }
+          
+          setAsistencias(resultadosFiltrados);
+          
+          if (resultadosFiltrados.length > 0) {
+            setGrado(resultadosFiltrados[0].id_grado.nivel);
+            setSeccion(resultadosFiltrados[0].id_Seccion.nombre_Seccion);
           } else {
             setGrado("");
             setSeccion("");

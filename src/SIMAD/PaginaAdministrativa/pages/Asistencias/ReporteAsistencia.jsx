@@ -80,11 +80,27 @@ export const ReporteAsistencia = () => {
         confirmButtonColor: "#2563EB",
       });
       return;
-    }
-
-    setHasSearched(true);
+    }    setHasSearched(true);
     setAsistencias([]);
     try {
+      // Si hay un filtro de materia, mostramos un mensaje
+      if (idMateria && idMateria !== "") {
+        const materiaSeleccionada = materias.find(m => m.id_Materia.toString() === idMateria)?.nombre_Materia || "";
+        console.log(`Aplicando filtro por materia: ${materiaSeleccionada} (ID: ${idMateria})`);
+        
+        // Mostrar toast informativo
+        Swal.fire({
+          icon: "info",
+          title: "Filtrando por materia",
+          text: `Buscando asistencias solo para la materia: ${materiaSeleccionada}`,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      }
+      
       await buscarAsistencias(fechaInicio, fechaFin);
     } catch (err) {
       console.error("Error en la búsqueda:", err);
@@ -281,17 +297,25 @@ export const ReporteAsistencia = () => {
           <div>
             <label htmlFor="idMateria" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
               Materia
-            </label>
-            <select
+            </label>            <select
               name="idMateria"
-              value={idMateria}              onChange={(e) => {
+              value={idMateria}
+              onChange={(e) => {
                 const value = e.target.value;
                 console.log(`Materia seleccionada: ${value}`);
+                // Cambiamos la materia seleccionada
                 setIdMateria(value);
+                // Reiniciamos la búsqueda para que se aplique el filtro al buscar nuevamente
                 setHasSearched(false);
+                // Si ya hay resultados, limpiamos para evitar confusiones
+                if (asistencias.length > 0) {
+                  setAsistencias([]);
+                }
               }}
-              className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-md shadow-sm"
-            >              <option value="">Todas las materias</option>
+              className={`mt-1 block w-full p-2 border ${
+                idMateria ? 'border-green-500 dark:border-green-600' : 'border-gray-300 dark:border-gray-700'
+              } bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-md shadow-sm`}
+            ><option value="">Todas las materias</option>
               {materias.map((materia) => (
                 <option key={materia.id_Materia} value={materia.id_Materia.toString()}>
                   {materia.nombre_Materia}
@@ -349,11 +373,14 @@ export const ReporteAsistencia = () => {
                         : typeof asistencia.lecciones === "string"
                         ? asistencia.lecciones.split(",").join(", ")
                         : "N/A"}
+                    </td>                    <td className="px-6 py-4">{traducirEstado(asistencia.estado)}</td>
+                    <td className={`px-6 py-4 ${idMateria && asistencia.id_Materia?.id_Materia?.toString() === idMateria ? 'font-bold text-green-600 dark:text-green-400' : ''}`}>
+                      {/* Maneja diferentes estructuras posibles del objeto materia */}
+                      {asistencia.id_Materia?.nombre_Materia || 
+                       (typeof asistencia.id_Materia === 'object' ? JSON.stringify(asistencia.id_Materia) : asistencia.id_Materia?.toString() || "N/A")}
                     </td>
-                    <td className="px-6 py-4">{traducirEstado(asistencia.estado)}</td>
-                    <td className="px-6 py-4">{asistencia.id_Materia.nombre_Materia}</td>
                     <td className="px-6 py-4">
-                      {`${asistencia.id_Profesor.nombre_Profesor} ${asistencia.id_Profesor.apellido1_Profesor}`}
+                      {`${asistencia.id_Profesor?.nombre_Profesor || ''} ${asistencia.id_Profesor?.apellido1_Profesor || ''}`}
                     </td>
                     <td className="px-6 py-4">
                       {asistencia.justificacionAusencia
