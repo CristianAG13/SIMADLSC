@@ -86,7 +86,6 @@ export const ReporteAsistencia = () => {
       // Si hay un filtro de materia, mostramos un mensaje
       if (idMateria && idMateria !== "") {
         const materiaSeleccionada = materias.find(m => m.id_Materia.toString() === idMateria)?.nombre_Materia || "";
-        console.log(`Aplicando filtro por materia: ${materiaSeleccionada} (ID: ${idMateria})`);
         
         // Mostrar toast informativo
         Swal.fire({
@@ -108,9 +107,15 @@ export const ReporteAsistencia = () => {
   };
 
   useEffect(() => {
-    if (!hasSearched || loading) return;
-
-    if (error === "not-found") {
+    if (!hasSearched || loading) return;    if (error === "estudiante-no-encontrado") {
+      Swal.fire({
+        icon: "warning",
+        title: "Estudiante no encontrado",
+        text: `No se encontró ningún estudiante con la cédula "${cedula}". Por favor, verifica el número de identificación e intenta nuevamente.`,
+        confirmButtonColor: "#2563EB",
+      });
+      setHasSearched(false);
+    } else if (error === "not-found") {
       Swal.fire({
         icon: "warning",
         title: "Sin resultados",
@@ -163,7 +168,6 @@ export const ReporteAsistencia = () => {
       "364228843_669464341867218_3303264254839208450_n_f2ehi6.jpg",
       "w_40,h_40,c_fill"
     );
-    // Trae el logo y lo convierte a base64
     const res = await fetch(logoUrl);
     const blob = await res.blob();
     const reader = new FileReader();
@@ -171,7 +175,6 @@ export const ReporteAsistencia = () => {
     reader.onloadend = () => {
       const logoBase64 = reader.result;
       
-      // Determinar el nombre de la materia si hay un filtro activo
       const nombreMateria = idMateria 
         ? materias.find(m => m.id_Materia.toString() === idMateria)?.nombre_Materia || ""
         : "";
@@ -215,7 +218,7 @@ export const ReporteAsistencia = () => {
                 setHasSearched(false);
               }}
               className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-md shadow-sm"
-              placeholder="Ingresa la cédula o el nombre del estudiante"
+              placeholder="Ingresa la cédula "
               required
             />
           </div>
@@ -302,12 +305,8 @@ export const ReporteAsistencia = () => {
               value={idMateria}
               onChange={(e) => {
                 const value = e.target.value;
-                console.log(`Materia seleccionada: ${value}`);
-                // Cambiamos la materia seleccionada
                 setIdMateria(value);
-                // Reiniciamos la búsqueda para que se aplique el filtro al buscar nuevamente
                 setHasSearched(false);
-                // Si ya hay resultados, limpiamos para evitar confusiones
                 if (asistencias.length > 0) {
                   setAsistencias([]);
                 }
