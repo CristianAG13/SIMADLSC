@@ -73,7 +73,7 @@ export const ReporteAsistenciaSeccion = () => {
       Swal.fire({
         icon: "warning",
         title: "Advertencia",
-        text: `No se encontró la sección "${nombreSeccion}". Verifica el nombre.`,
+        text: `No se encontró la sección "${nombreSeccion}". Verifica el sección.`,
         confirmButtonColor: "#2563EB",
       });
       return;
