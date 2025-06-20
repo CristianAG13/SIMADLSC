@@ -99,8 +99,6 @@ export const FormularioMatricula = () => {
 
   const API_BASE_URL =
     import.meta.env.NODE_ENV === "production"
-      ? "https://simadlsc-backend-production.up.railway.app"
-      : "http://localhost:3000";
 
   // Función para calcular la edad a partir de la fecha de nacimiento
   const handleFechaNacimientoChange = (e) => {
