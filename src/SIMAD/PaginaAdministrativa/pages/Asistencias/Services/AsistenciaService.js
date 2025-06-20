@@ -96,8 +96,6 @@ export const obtenerReporteAsistencias = async (cedula, fechaInicio, fechaFin, i
   if (idPeriodo) params.append("id_Periodo", idPeriodo);  // Aseguramos que idMateria sea una cadena válida y no vacía antes de añadirlo
   if (idMateria && idMateria !== "") {
     params.append("id_Materia", idMateria.toString());
-    console.log(`Enviando filtro de materia: ${idMateria} a la API`);
-    // Para verificar la URL final
     console.log(`URL con parámetros: ${API_URL}/asistencias/reporte/${cedula}?${params.toString()}`);
   }
 

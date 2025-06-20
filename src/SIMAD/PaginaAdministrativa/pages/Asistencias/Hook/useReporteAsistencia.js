@@ -17,30 +17,20 @@ export const useReporteAsistencia = () => {
       setLoading(true);
       setError(null);
       try {
-        // Usar los parámetros si se proporcionan, de lo contrario usar los valores del estado
         const fechaInicioFinal = fechaInicioParam !== undefined ? fechaInicioParam : fechaInicio;
-        const fechaFinFinal = fechaFinParam !== undefined ? fechaFinParam : fechaFin;          const data = await obtenerReporteAsistencias(cedula, fechaInicioFinal, fechaFinFinal, idPeriodo, idMateria);
-        
-        // Si data es un objeto que contiene la propiedad "asistencias"
+        const fechaFinFinal = fechaFinParam !== undefined ? fechaFinParam : fechaFin;         
+        const data = await obtenerReporteAsistencias(cedula, fechaInicioFinal, fechaFinFinal, idPeriodo, idMateria);
         const asistenciasArray = Array.isArray(data)
           ? data
           : data?.asistencias || [];        if (asistenciasArray.length > 0) {
-          // Verificamos si debemos filtrar por materia en el frontend
-          // A veces el backend no aplica el filtro correctamente
           let resultadosFiltrados = asistenciasArray;
           
           if (idMateria && idMateria !== "") {
-            console.log(`Filtrando por materia ID: ${idMateria} en el frontend`);
             resultadosFiltrados = asistenciasArray.filter(asistencia => {
-              // Intentamos manejar diferentes estructuras de datos posibles
               const materiaId = asistencia.id_Materia?.id_Materia || asistencia.id_Materia;
               const materiaIdStr = materiaId?.toString();
-              
-              console.log(`Asistencia materia ID: ${materiaIdStr}, comparando con: ${idMateria}`);
               return materiaIdStr === idMateria.toString();
             });
-            
-            console.log(`Se filtraron ${resultadosFiltrados.length} de ${asistenciasArray.length} registros`);
           }
           
           setAsistencias(resultadosFiltrados);
@@ -58,13 +48,13 @@ export const useReporteAsistencia = () => {
           setGrado("");
           setSeccion("");
           setError("not-found");
-        }
-      } catch (err) {
+        }      } catch (err) {
         if (err.message === "NOT_FOUND") {
           setAsistencias([]);
           setGrado("");
           setSeccion("");
-          setError("not-found");
+          // Distinguimos entre estudiante no encontrado y otras razones de "no encontrado"
+          setError(cedula ? "estudiante-no-encontrado" : "not-found");
         } else {
           setAsistencias([]);
           setGrado("");
@@ -91,7 +81,7 @@ export const useReporteAsistencia = () => {
       setIdMateria,
       asistencias,
       setAsistencias,
-      error,       // "not-found" | "server-error" | null
+      error,
       buscarAsistencias,
       loading,
     };

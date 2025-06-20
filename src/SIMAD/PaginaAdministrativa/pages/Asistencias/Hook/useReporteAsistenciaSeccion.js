@@ -19,10 +19,10 @@ export const useReporteAsistenciaSeccion = () => {
         throw new Error("NOT_FOUND");
       }
       
-      setReporte(dataReporte);
-    } catch (err) {
+      setReporte(dataReporte);    } catch (err) {
       if (err.message === "NOT_FOUND") {
-        setError("not-found");
+        // Distinguimos entre sección no encontrada y otras razones de "no encontrado"
+        setError(idSeccion ? "seccion-not-found" : "not-found");
       } else {
         setError("server-error");
       }
