@@ -46,7 +46,9 @@ export const HorarioProf = () => {
 
   const role = localStorage.getItem('role');
   const idProfesorLocal = localStorage.getItem('id_Profesor');
-  const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+  
+  // Uso de useMemo para evitar recreaciones en cada renderizado
+  const diasSemana = useMemo(() => ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'], []);
 
 
 
@@ -92,7 +94,13 @@ export const HorarioProf = () => {
         if (!response.ok)
           throw new Error('Error al obtener la lista de profesores.');
         const profesoresData = await response.json();
-        setProfesores(profesoresData);
+        
+        // Ordenar profesores por nombre
+        const profesoresOrdenados = profesoresData.sort((a, b) => 
+          a.nombre_Profesor.localeCompare(b.nombre_Profesor)
+        );
+        
+        setProfesores(profesoresOrdenados);
       } catch (error) {
         console.error('Error al obtener los profesores:', error);
         setError('Error al cargar la lista de profesores.');
@@ -106,6 +114,9 @@ export const HorarioProf = () => {
   
 
   useEffect(() => {
+    // Limpiar horarios cuando cambia el profesor seleccionado
+    setHorarios([]);
+    
     const obtenerDatosProfesorYHorario = async () => {
       try {
         // Siempre convertir a número (si existe)
@@ -122,17 +133,23 @@ export const HorarioProf = () => {
           profesorId = Number(idProfesorSeleccionado);
         }
   
-  
-        // Si no hay ID, usar nombre/apellidos almacenados del login
+        // Si no hay ID, usar nombre/apellidos almacenados del login o limpiar datos
         if (profesorId === null) {
-          const nombreGuardado = localStorage.getItem('nombre_Profesor') || '';
-          const apellido1Guardado = localStorage.getItem('apellido1_Profesor') || '';
-          const apellido2Guardado = localStorage.getItem('apellido2_Profesor') || '';
-  
-          setNombreProfesor(nombreGuardado);
-          setApellidosProfesor(`${apellido1Guardado} ${apellido2Guardado}`);
-          console.warn("No hay ID de profesor, usando datos de login guardados.");
-          return;
+          if (role === 'profesor') {
+            // Si es profesor, usar datos de login guardados
+            const nombreGuardado = localStorage.getItem('nombre_Profesor') || '';
+            const apellido1Guardado = localStorage.getItem('apellido1_Profesor') || '';
+            const apellido2Guardado = localStorage.getItem('apellido2_Profesor') || '';
+    
+            setNombreProfesor(nombreGuardado);
+            setApellidosProfesor(`${apellido1Guardado} ${apellido2Guardado}`);
+            console.warn("No hay ID de profesor, usando datos de login guardados.");
+          } else {
+            // Si es admin/superadmin y no hay profesor seleccionado, limpiar datos
+            setNombreProfesor('');
+            setApellidosProfesor('');
+          }
+          return; // No continuar con las consultas si no hay ID
         }
   
         // Fetch datos del profesor
@@ -182,7 +199,10 @@ export const HorarioProf = () => {
       }
     };
   
-    obtenerDatosProfesorYHorario();
+    // Solo obtener datos si hay un profesor seleccionado (admin/superadmin) o es rol profesor
+    if (idProfesorSeleccionado || role === 'profesor') {
+      obtenerDatosProfesorYHorario();
+    }
   }, [idProfesorSeleccionado, role, idProfesorLocal]);
   
   
@@ -326,7 +346,7 @@ export const HorarioProf = () => {
     });
   
     return bloques;
-  }, [horarios, lessons]);
+  }, [horarios, lessons, diasSemana]);
   
   
 
@@ -362,8 +382,14 @@ export const HorarioProf = () => {
   </button>
 </div>
 
-      
+      {/* Mensaje cuando no hay profesor seleccionado (admin/superadmin) */}
+      {(role === 'admin' || role === 'superadmin') && !idProfesorSeleccionado && (
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md text-center">
+          <p className="text-lg dark:text-gray-300">Por favor, seleccione un profesor para ver su horario.</p>
+        </div>
+      )}
 
+      {/* Muestra los horarios cuando hay datos disponibles */}
       {horarios.length > 0 ? (
         <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md overflow-x-auto">
           <table className="table-auto w-full min-w-max text-xs text-center border-collapse">
