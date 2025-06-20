@@ -284,16 +284,16 @@ export const ReporteAsistencia = () => {
             </label>
             <select
               name="idMateria"
-              value={idMateria}
-              onChange={(e) => {
-                setIdMateria(e.target.value);
+              value={idMateria}              onChange={(e) => {
+                const value = e.target.value;
+                console.log(`Materia seleccionada: ${value}`);
+                setIdMateria(value);
                 setHasSearched(false);
               }}
               className="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-md shadow-sm"
-            >
-              <option value="">Todas las materias</option>
+            >              <option value="">Todas las materias</option>
               {materias.map((materia) => (
-                <option key={materia.id_Materia} value={materia.id_Materia}>
+                <option key={materia.id_Materia} value={materia.id_Materia.toString()}>
                   {materia.nombre_Materia}
                 </option>
               ))}
