@@ -80,11 +80,21 @@ export const ReporteAsistenciaSeccion = () => {
     }    setHasSearched(true);
     const idSeccion = seccionEncontrada.id_Seccion;
     try {
+      // Si la materia seleccionada existe y no es una cadena vacía
+      const materiaParam = idMateriaSelected && idMateriaSelected !== "" ? idMateriaSelected : undefined;
+      
+      console.log("Buscando reporte con parámetros:", {
+        idSeccion, 
+        fechaInicio, 
+        fechaFin,
+        idMateria: materiaParam
+      });
+      
       await buscarReporteSeccion({ 
         idSeccion, 
         fechaInicio, 
         fechaFin,
-        idMateria: idMateriaSelected || undefined 
+        idMateria: materiaParam
       });
     } catch (error) {
       console.error("Error al buscar reporte de sección:", error);
@@ -103,9 +113,13 @@ export const ReporteAsistenciaSeccion = () => {
     setFechaFin(e.target.value);
     setHasSearched(false);
   };
-  
-  const handleChangeMateria = (e) => {
-    setIdMateriaSelected(e.target.value);
+    const handleChangeMateria = (e) => {
+    // Aseguramos que un string vacío o un valor válido se establezcan correctamente
+    const materiaValue = e.target.value;
+    console.log(`Materia seleccionada: ID=${materiaValue}, Nombre=${
+      materiaValue ? materias.find(m => m.id_Materia.toString() === materiaValue)?.nombre_Materia : "Todas"
+    }`);
+    setIdMateriaSelected(materiaValue);
     setHasSearched(false);
   };
 
@@ -190,8 +204,7 @@ export const ReporteAsistenciaSeccion = () => {
            <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
               Materia
-            </label>
-            <select
+            </label>            <select
               value={idMateriaSelected}
               onChange={handleChangeMateria}
               className={`mt-1 block w-full p-2 border ${
@@ -200,7 +213,10 @@ export const ReporteAsistenciaSeccion = () => {
             >
               <option value="">Todas las materias</option>
               {materias.map((materia) => (
-                <option key={materia.id_Materia} value={materia.id_Materia}>
+                <option 
+                  key={materia.id_Materia} 
+                  value={materia.id_Materia.toString()}
+                >
                   {materia.nombre_Materia}
                 </option>
               ))}
